@@ -10,3 +10,9 @@ crate-type = ["cdylib"]
 
 [dependencies]
 pyo3 = "0.22.0"
+sea-query = { version = "0.31.0", default-features = false, features = [
+    "thread-safe",
+    "backend-postgres",
+    "backend-mysql",
+    "backend-sqlite",
+] }

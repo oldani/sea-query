@@ -173,6 +173,16 @@ impl SelectStatement {
         slf
     }
 
+    fn and_having(mut slf: PyRefMut<Self>, expr: SimpleExpr) -> PyRefMut<Self> {
+        slf.0.and_having(expr.0);
+        slf
+    }
+
+    fn cond_having(mut slf: PyRefMut<Self>, cond: Condition) -> PyRefMut<Self> {
+        slf.0.cond_having(cond.0);
+        slf
+    }
+
     fn order_by(mut slf: PyRefMut<Self>, column: String, order: OrderBy) -> PyRefMut<Self> {
         let order = match order {
             OrderBy::Asc => Order::Asc,

@@ -2,9 +2,9 @@ use pyo3::prelude::*;
 use sea_query::{
     backend::{MysqlQueryBuilder, PostgresQueryBuilder, SqliteQueryBuilder},
     query::{
-        Condition as SeaCondition, DeleteStatement as SeaDeleteStatement,
-        InsertStatement as SeaInsertStatement, SelectStatement as SeaSelectStatement,
-        UpdateStatement as SeaUpdateStatement,
+        Condition as SeaCondition, ConditionExpression as SeaConditionExpression,
+        DeleteStatement as SeaDeleteStatement, InsertStatement as SeaInsertStatement,
+        SelectStatement as SeaSelectStatement, UpdateStatement as SeaUpdateStatement,
     },
     Alias, Asterisk, NullOrdering, Order,
 };
@@ -54,8 +54,11 @@ impl Condition {
         Self(SeaCondition::any())
     }
 
-    fn add(&self, expr: SimpleExpr) -> Self {
-        Self(self.0.clone().add(expr.0))
+    fn add(&self, expr: ConditionExpression) -> Self {
+        Self(self.0.clone().add(match expr {
+            ConditionExpression::Condition(cond) => SeaConditionExpression::Condition(cond.0),
+            ConditionExpression::SimpleExpr(expr) => SeaConditionExpression::SimpleExpr(expr.0),
+        }))
     }
 
     fn __invert__(&self) -> Self {
@@ -63,16 +66,22 @@ impl Condition {
     }
 }
 
+#[derive(FromPyObject)]
+pub enum ConditionExpression {
+    Condition(Condition),
+    SimpleExpr(SimpleExpr),
+}
+
 #[pyclass(eq, eq_int)]
 #[derive(PartialEq, Clone)]
-enum OrderBy {
+pub enum OrderBy {
     Asc,
     Desc,
 }
 
 #[pyclass(eq, eq_int)]
 #[derive(PartialEq, Clone)]
-enum NullsOrder {
+pub enum NullsOrder {
     First,
     Last,
 }
@@ -230,7 +239,7 @@ impl SelectStatement {
 }
 
 #[pyclass]
-struct InsertStatement(SeaInsertStatement);
+pub struct InsertStatement(SeaInsertStatement);
 
 #[pymethods]
 impl InsertStatement {
@@ -241,7 +250,7 @@ impl InsertStatement {
 }
 
 #[pyclass]
-struct UpdateStatement(SeaUpdateStatement);
+pub struct UpdateStatement(SeaUpdateStatement);
 
 #[pymethods]
 impl UpdateStatement {
@@ -252,7 +261,7 @@ impl UpdateStatement {
 }
 
 #[pyclass]
-struct DeleteStatement(SeaDeleteStatement);
+pub struct DeleteStatement(SeaDeleteStatement);
 
 #[pymethods]
 impl DeleteStatement {

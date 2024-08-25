@@ -1,7 +1,10 @@
 use pyo3::prelude::*;
 use sea_query::{
-    Alias, Asterisk, DeleteStatement, InsertStatement, NullOrdering, Order, SelectStatement,
-    UpdateStatement,
+    query::{
+        DeleteStatement as SeaDeleteStatement, InsertStatement as SeaInsertStatement,
+        SelectStatement as SeaSelectStatement, UpdateStatement as SeaUpdateStatement,
+    },
+    Alias, Asterisk, NullOrdering, Order,
 };
 
 #[pyclass]
@@ -10,23 +13,23 @@ pub struct Query;
 #[pymethods]
 impl Query {
     #[staticmethod]
-    fn select() -> SelectQuery {
-        SelectQuery::new()
+    fn select() -> SelectStatement {
+        SelectStatement::new()
     }
 
     #[staticmethod]
-    fn insert() -> InsertQuery {
-        InsertQuery::new()
+    fn insert() -> InsertStatement {
+        InsertStatement::new()
     }
 
     #[staticmethod]
-    fn update() -> UpdateQuery {
-        UpdateQuery::new()
+    fn update() -> UpdateStatement {
+        UpdateStatement::new()
     }
 
     #[staticmethod]
-    fn delete() -> DeleteQuery {
-        DeleteQuery::new()
+    fn delete() -> DeleteStatement {
+        DeleteStatement::new()
     }
 }
 
@@ -46,13 +49,13 @@ enum NullsOrder {
 
 #[pyclass]
 #[derive(Clone)]
-struct SelectQuery(SelectStatement);
+pub struct SelectStatement(pub SeaSelectStatement);
 
 #[pymethods]
-impl SelectQuery {
+impl SelectStatement {
     #[new]
     fn new() -> Self {
-        Self(SelectStatement::new())
+        Self(SeaSelectStatement::new())
     }
 
     fn from_table(mut slf: PyRefMut<Self>, name: String) -> PyRefMut<Self> {
@@ -62,7 +65,7 @@ impl SelectQuery {
 
     fn from_subquery(
         mut slf: PyRefMut<Self>,
-        subquery: SelectQuery,
+        subquery: SelectStatement,
         alias: String,
     ) -> PyRefMut<Self> {
         slf.0.from_subquery(subquery.0, Alias::new(alias));
@@ -159,34 +162,34 @@ impl SelectQuery {
 }
 
 #[pyclass]
-struct InsertQuery(InsertStatement);
+struct InsertStatement(SeaInsertStatement);
 
 #[pymethods]
-impl InsertQuery {
+impl InsertStatement {
     #[new]
     fn new() -> Self {
-        Self(InsertStatement::new())
+        Self(SeaInsertStatement::new())
     }
 }
 
 #[pyclass]
-struct UpdateQuery(UpdateStatement);
+struct UpdateStatement(SeaUpdateStatement);
 
 #[pymethods]
-impl UpdateQuery {
+impl UpdateStatement {
     #[new]
     fn new() -> Self {
-        Self(UpdateStatement::new())
+        Self(SeaUpdateStatement::new())
     }
 }
 
 #[pyclass]
-struct DeleteQuery(DeleteStatement);
+struct DeleteStatement(SeaDeleteStatement);
 
 #[pymethods]
-impl DeleteQuery {
+impl DeleteStatement {
     #[new]
     fn new() -> Self {
-        Self(DeleteStatement::new())
+        Self(SeaDeleteStatement::new())
     }
 }

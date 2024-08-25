@@ -2,8 +2,9 @@ use pyo3::prelude::*;
 use sea_query::{
     backend::{MysqlQueryBuilder, PostgresQueryBuilder, SqliteQueryBuilder},
     query::{
-        DeleteStatement as SeaDeleteStatement, InsertStatement as SeaInsertStatement,
-        SelectStatement as SeaSelectStatement, UpdateStatement as SeaUpdateStatement,
+        Condition as SeaCondition, DeleteStatement as SeaDeleteStatement,
+        InsertStatement as SeaInsertStatement, SelectStatement as SeaSelectStatement,
+        UpdateStatement as SeaUpdateStatement,
     },
     Alias, Asterisk, NullOrdering, Order,
 };
@@ -34,6 +35,31 @@ impl Query {
     #[staticmethod]
     fn delete() -> DeleteStatement {
         DeleteStatement::new()
+    }
+}
+
+#[pyclass]
+#[derive(Clone)]
+pub struct Condition(pub SeaCondition);
+
+#[pymethods]
+impl Condition {
+    #[staticmethod]
+    fn all() -> Self {
+        Self(SeaCondition::all())
+    }
+
+    #[staticmethod]
+    fn any() -> Self {
+        Self(SeaCondition::any())
+    }
+
+    fn add(&self, expr: SimpleExpr) -> Self {
+        Self(self.0.clone().add(expr.0))
+    }
+
+    fn __invert__(&self) -> Self {
+        Self(self.0.clone().not())
     }
 }
 
@@ -129,6 +155,11 @@ impl SelectStatement {
 
     fn and_where(mut slf: PyRefMut<Self>, expr: SimpleExpr) -> PyRefMut<Self> {
         slf.0.and_where(expr.0);
+        slf
+    }
+
+    fn cond_where(mut slf: PyRefMut<Self>, cond: Condition) -> PyRefMut<Self> {
+        slf.0.cond_where(cond.0);
         slf
     }
 

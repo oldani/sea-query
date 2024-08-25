@@ -1,6 +1,11 @@
 from enum import IntEnum
 from typing import Optional, Self, TypeAlias, Union
 
+class DBEngine(IntEnum):
+    MySQL = 1
+    PostgreSQL = 2
+    SQLite = 3
+
 class Query:
     @staticmethod
     def select() -> SelectStatement: ...

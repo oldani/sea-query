@@ -1,5 +1,6 @@
 use pyo3::prelude::*;
 use sea_query::{
+    backend::{MysqlQueryBuilder, PostgresQueryBuilder, SqliteQueryBuilder},
     query::{
         DeleteStatement as SeaDeleteStatement, InsertStatement as SeaInsertStatement,
         SelectStatement as SeaSelectStatement, UpdateStatement as SeaUpdateStatement,
@@ -8,6 +9,7 @@ use sea_query::{
 };
 
 use crate::expr::{Expr, SimpleExpr};
+use crate::utils::DBEngine;
 
 #[pyclass]
 pub struct Query;
@@ -175,6 +177,14 @@ impl SelectStatement {
     fn offset(mut slf: PyRefMut<Self>, offset: u64) -> PyRefMut<Self> {
         slf.0.offset(offset);
         slf
+    }
+
+    fn build_sql(&self, engine: &DBEngine) -> String {
+        match engine {
+            DBEngine::Mysql => self.0.to_string(MysqlQueryBuilder),
+            DBEngine::Postgres => self.0.to_string(PostgresQueryBuilder),
+            DBEngine::Sqlite => self.0.to_string(SqliteQueryBuilder),
+        }
     }
 }
 

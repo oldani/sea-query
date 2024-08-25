@@ -7,6 +7,8 @@ use sea_query::{
     Alias, Asterisk, NullOrdering, Order,
 };
 
+use crate::expr::{Expr, SimpleExpr};
+
 #[pyclass]
 pub struct Query;
 
@@ -108,8 +110,23 @@ impl SelectStatement {
         slf
     }
 
+    fn expr(mut slf: PyRefMut<Self>, expr: Expr) -> PyRefMut<Self> {
+        slf.0.expr(expr.0);
+        slf
+    }
+
+    fn expr_as(mut slf: PyRefMut<Self>, expr: Expr, alias: String) -> PyRefMut<Self> {
+        slf.0.expr_as(expr.0, Alias::new(alias));
+        slf
+    }
+
     fn distinct(mut slf: PyRefMut<Self>) -> PyRefMut<Self> {
         slf.0.distinct();
+        slf
+    }
+
+    fn and_where(mut slf: PyRefMut<Self>, expr: SimpleExpr) -> PyRefMut<Self> {
+        slf.0.and_where(expr.0);
         slf
     }
 

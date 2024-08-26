@@ -305,3 +305,28 @@ def test_limit():
 def test_limit_and_offset():
     query = Query.select().from_table("table").limit(10).offset(5)
     assert_query(query, 'SELECT  FROM "table" LIMIT 10 OFFSET 5')
+
+
+def test_select_from_subquery():
+    subquery = (
+        Query.select().all().from_table("table").and_where(Expr.column("column1").gt(1))
+    )
+    query = Query.select().all().from_subquery(subquery, "subquery")
+    assert_query(
+        query,
+        'SELECT * FROM (SELECT * FROM "table" WHERE "column1" > 1) AS "subquery"',
+    )
+
+
+def test_select_expr():
+    query = Query.select().expr(Expr.column("column1").max()).from_table("table")
+    assert_query(query, 'SELECT MAX("column1") FROM "table"')
+
+
+def test_select_expr_as():
+    query = (
+        Query.select()
+        .expr_as(Expr.column("column1").count(), "count")
+        .from_table("table")
+    )
+    assert_query(query, 'SELECT COUNT("column1") AS "count" FROM "table"')

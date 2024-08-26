@@ -147,12 +147,12 @@ impl SelectStatement {
         slf
     }
 
-    fn expr(mut slf: PyRefMut<Self>, expr: Expr) -> PyRefMut<Self> {
+    fn expr(mut slf: PyRefMut<Self>, expr: SimpleExpr) -> PyRefMut<Self> {
         slf.0.expr(expr.0);
         slf
     }
 
-    fn expr_as(mut slf: PyRefMut<Self>, expr: Expr, alias: String) -> PyRefMut<Self> {
+    fn expr_as(mut slf: PyRefMut<Self>, expr: SimpleExpr, alias: String) -> PyRefMut<Self> {
         slf.0.expr_as(expr.0, Alias::new(alias));
         slf
     }

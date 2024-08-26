@@ -65,6 +65,30 @@ impl Expr {
         Self(SeaExpr::expr(expr.0.clone()))
     }
 
+    #[pyo3(signature = (column, table=None))]
+    fn equals(&self, column: String, table: Option<String>) -> SimpleExpr {
+        if let Some(table) = table {
+            return SimpleExpr(
+                self.0
+                    .clone()
+                    .equals((Alias::new(table), Alias::new(column))),
+            );
+        }
+        SimpleExpr(self.0.clone().equals(Alias::new(column)))
+    }
+
+    #[pyo3(signature = (column, table=None))]
+    fn not_equals(&self, column: String, table: Option<String>) -> SimpleExpr {
+        if let Some(table) = table {
+            return SimpleExpr(
+                self.0
+                    .clone()
+                    .equals((Alias::new(table), Alias::new(column))),
+            );
+        }
+        SimpleExpr(self.0.clone().equals(Alias::new(column)))
+    }
+
     fn eq(&self, value: PyValue) -> SimpleExpr {
         SimpleExpr(self.0.clone().eq(&value))
     }

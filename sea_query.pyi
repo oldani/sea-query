@@ -2,9 +2,9 @@ from enum import IntEnum
 from typing import Optional, Self, TypeAlias, Union
 
 class DBEngine(IntEnum):
-    MySQL = 1
-    PostgreSQL = 2
-    SQLite = 3
+    Mysql = 1
+    Postgres = 2
+    Sqlite = 3
 
 class Query:
     @staticmethod
@@ -49,6 +49,7 @@ class SelectStatement:
     ) -> Self: ...
     def limit(self, limit: int) -> Self: ...
     def offset(self, offset: int) -> Self: ...
+    def build_sql(self, engine: DBEngine) -> str: ...
 
 class SimpleExpr:
     def __or__(self, other: SimpleExpr) -> SimpleExpr: ...

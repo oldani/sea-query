@@ -9,12 +9,18 @@ from sea_query import (
 )
 
 
-def assert_query(query: SelectStatement, expected: str, mysql_expected: str = None):
+def assert_query(
+    query: SelectStatement,
+    expected: str,
+    mysql_expected: str = None,
+    disable_mysql: bool = False,
+):
     assert query.build_sql(DBEngine.Postgres) == expected
     assert query.build_sql(DBEngine.Sqlite) == expected
-    assert query.build_sql(DBEngine.Mysql) == mysql_expected or expected.replace(
-        '"', "`"
-    )
+    if not disable_mysql:
+        assert query.build_sql(DBEngine.Mysql) == mysql_expected or expected.replace(
+            '"', "`"
+        )
 
 
 def test_select_all():
@@ -330,3 +336,119 @@ def test_select_expr_as():
         .from_table("table")
     )
     assert_query(query, 'SELECT COUNT("column1") AS "count" FROM "table"')
+
+
+def test_cross_join():
+    query = (
+        Query.select()
+        .from_table("table1")
+        .cross_join("table2", Expr.column("column1").equals("column2"))
+    )
+    assert_query(
+        query,
+        'SELECT  FROM "table1" CROSS JOIN "table2" ON "column1" = "column2"',
+    )
+
+
+def test_left_join():
+    query = (
+        Query.select()
+        .from_table("table1")
+        .left_join(
+            "table2",
+            Expr.column("column1", table="table1").equals("column2", table="table2"),
+        )
+    )
+    assert_query(
+        query,
+        'SELECT  FROM "table1" LEFT JOIN "table2" ON "table1"."column1" = "table2"."column2"',
+    )
+
+
+def test_right_join():
+    query = (
+        Query.select()
+        .from_table("table1")
+        .right_join(
+            "table2",
+            Expr.column("column1", table="table1").equals("column2", table="table2"),
+        )
+    )
+    assert_query(
+        query,
+        'SELECT  FROM "table1" RIGHT JOIN "table2" ON "table1"."column1" = "table2"."column2"',
+    )
+
+
+def test_inner_join():
+    query = (
+        Query.select()
+        .from_table("table1")
+        .inner_join(
+            "table2",
+            Expr.column("column1", table="table1").equals("column2", table="table2")
+            & Expr.column("column3", table="table1").equals("column4", table="table2"),
+        )
+    )
+    assert_query(
+        query,
+        'SELECT  FROM "table1" INNER JOIN "table2" ON "table1"."column1" = "table2"."column2" AND "table1"."column3" = "table2"."column4"',
+    )
+
+
+def test_inner_join_chained():
+    query = (
+        Query.select()
+        .from_table("table1")
+        .inner_join(
+            "table2",
+            Expr.column("column1", table="table1").equals("column2", table="table2"),
+        )
+        .inner_join(
+            "table3",
+            Expr.column("column3", table="table1").equals("column4", table="table3"),
+        )
+    )
+    assert_query(
+        query,
+        'SELECT  FROM "table1" INNER JOIN "table2" ON "table1"."column1" = "table2"."column2" INNER JOIN "table3" ON "table1"."column3" = "table3"."column4"',
+    )
+
+
+def test_full_outer_join():
+    query = (
+        Query.select()
+        .from_table("table1")
+        .full_outer_join(
+            "table2",
+            Expr.column("column1", table="table1").equals("column2", table="table2"),
+        )
+    )
+    assert_query(
+        query,
+        'SELECT  FROM "table1" FULL OUTER JOIN "table2" ON "table1"."column1" = "table2"."column2"',
+        disable_mysql=True,
+    )
+
+
+def test_mixed_joins_chained():
+    query = (
+        Query.select()
+        .from_table("table1")
+        .left_join(
+            "table2",
+            Expr.column("column1", table="table1").equals("column2", table="table2"),
+        )
+        .right_join(
+            "table3",
+            Expr.column("column3", table="table1").equals("column4", table="table3"),
+        )
+        .inner_join(
+            "table4",
+            Expr.column("column5", table="table1").equals("column6", table="table4"),
+        )
+    )
+    assert_query(
+        query,
+        'SELECT  FROM "table1" LEFT JOIN "table2" ON "table1"."column1" = "table2"."column2" RIGHT JOIN "table3" ON "table1"."column3" = "table3"."column4" INNER JOIN "table4" ON "table1"."column5" = "table4"."column6"',
+    )

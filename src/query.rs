@@ -9,7 +9,7 @@ use sea_query::{
     Alias, Asterisk, NullOrdering, Order,
 };
 
-use crate::expr::{Expr, SimpleExpr};
+use crate::expr::SimpleExpr;
 use crate::utils::DBEngine;
 
 #[pyclass]
@@ -226,6 +226,86 @@ impl SelectStatement {
 
     fn offset(mut slf: PyRefMut<Self>, offset: u64) -> PyRefMut<Self> {
         slf.0.offset(offset);
+        slf
+    }
+
+    fn cross_join(
+        mut slf: PyRefMut<Self>,
+        table: String,
+        condition: ConditionExpression,
+    ) -> PyRefMut<Self> {
+        match condition {
+            ConditionExpression::Condition(cond) => {
+                slf.0.cross_join(Alias::new(table), cond.0);
+            }
+            ConditionExpression::SimpleExpr(expr) => {
+                slf.0.cross_join(Alias::new(table), expr.0);
+            }
+        }
+        slf
+    }
+
+    fn left_join(
+        mut slf: PyRefMut<Self>,
+        table: String,
+        condition: ConditionExpression,
+    ) -> PyRefMut<Self> {
+        match condition {
+            ConditionExpression::Condition(cond) => {
+                slf.0.left_join(Alias::new(table), cond.0);
+            }
+            ConditionExpression::SimpleExpr(expr) => {
+                slf.0.left_join(Alias::new(table), expr.0);
+            }
+        }
+        slf
+    }
+
+    fn right_join(
+        mut slf: PyRefMut<Self>,
+        table: String,
+        condition: ConditionExpression,
+    ) -> PyRefMut<Self> {
+        match condition {
+            ConditionExpression::Condition(cond) => {
+                slf.0.right_join(Alias::new(table), cond.0);
+            }
+            ConditionExpression::SimpleExpr(expr) => {
+                slf.0.right_join(Alias::new(table), expr.0);
+            }
+        }
+        slf
+    }
+
+    fn inner_join(
+        mut slf: PyRefMut<Self>,
+        table: String,
+        condition: ConditionExpression,
+    ) -> PyRefMut<Self> {
+        match condition {
+            ConditionExpression::Condition(cond) => {
+                slf.0.inner_join(Alias::new(table), cond.0);
+            }
+            ConditionExpression::SimpleExpr(expr) => {
+                slf.0.inner_join(Alias::new(table), expr.0);
+            }
+        }
+        slf
+    }
+
+    fn full_outer_join(
+        mut slf: PyRefMut<Self>,
+        table: String,
+        condition: ConditionExpression,
+    ) -> PyRefMut<Self> {
+        match condition {
+            ConditionExpression::Condition(cond) => {
+                slf.0.full_outer_join(Alias::new(table), cond.0);
+            }
+            ConditionExpression::SimpleExpr(expr) => {
+                slf.0.full_outer_join(Alias::new(table), expr.0);
+            }
+        }
         slf
     }
 

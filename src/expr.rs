@@ -28,18 +28,18 @@ impl SimpleExpr {
 
 #[derive(FromPyObject)]
 pub enum PyValue {
-    String(String),
-    Int(i64),
-    Float(f64),
     Bool(bool),
+    Float(f64),
+    Int(i64),
+    String(String),
 }
 
 impl From<&PyValue> for Value {
     fn from(value: &PyValue) -> Self {
         match value {
             PyValue::Bool(v) => Value::Bool(Some(*v)),
-            PyValue::Int(v) => Value::BigInt(Some(*v)),
             PyValue::Float(v) => Value::Double(Some(*v)),
+            PyValue::Int(v) => Value::BigInt(Some(*v)),
             PyValue::String(v) => Value::String(Some(Box::new(v.clone()))),
         }
     }
@@ -87,6 +87,14 @@ impl Expr {
 
     fn lte(&self, value: PyValue) -> SimpleExpr {
         SimpleExpr(self.0.clone().lte(&value))
+    }
+
+    fn is_(&self, value: PyValue) -> SimpleExpr {
+        SimpleExpr(self.0.clone().is(&value))
+    }
+
+    fn is_not(&self, value: PyValue) -> SimpleExpr {
+        SimpleExpr(self.0.clone().is_not(&value))
     }
 
     fn is_in(&self, values: Vec<PyValue>) -> SimpleExpr {

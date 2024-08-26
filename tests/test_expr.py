@@ -58,6 +58,28 @@ def test_lte():
     )
 
 
+def test_is():
+    query = (
+        Query.select().from_table("table").and_where(Expr.column("column").is_(True))
+    )
+    assert (
+        query.build_sql(DBEngine.Postgres)
+        == 'SELECT  FROM "table" WHERE "column" IS TRUE'
+    )
+
+
+def test_is_not():
+    query = (
+        Query.select()
+        .from_table("table")
+        .and_where(Expr.column("column").is_not(False))
+    )
+    assert (
+        query.build_sql(DBEngine.Postgres)
+        == 'SELECT  FROM "table" WHERE "column" IS NOT FALSE'
+    )
+
+
 def test_is_in():
     # In list
     query = (
@@ -241,4 +263,37 @@ def test_exists():
     )
     assert query.build_sql(DBEngine.Postgres) == (
         'SELECT EXISTS(SELECT "column" FROM "table" WHERE "column" = 1) FROM "table"'
+    )
+
+
+def test_eq_int():
+    query = Query.select().from_table("table").and_where(Expr.column("column").eq(1))
+    assert (
+        query.build_sql(DBEngine.Postgres) == 'SELECT  FROM "table" WHERE "column" = 1'
+    )
+
+
+def test_eq_float():
+    query = Query.select().from_table("table").and_where(Expr.column("column").eq(1.5))
+    assert (
+        query.build_sql(DBEngine.Postgres)
+        == 'SELECT  FROM "table" WHERE "column" = 1.5'
+    )
+
+
+def test_eq_str():
+    query = (
+        Query.select().from_table("table").and_where(Expr.column("column").eq("abc"))
+    )
+    assert (
+        query.build_sql(DBEngine.Postgres)
+        == 'SELECT  FROM "table" WHERE "column" = \'abc\''
+    )
+
+
+def test_eq_bool():
+    query = Query.select().from_table("table").and_where(Expr.column("column").eq(True))
+    assert (
+        query.build_sql(DBEngine.Postgres)
+        == 'SELECT  FROM "table" WHERE "column" = TRUE'
     )

@@ -50,3 +50,19 @@ pub enum UnionType {
     Except,
     All,
 }
+
+#[pyclass(eq, eq_int)]
+#[derive(PartialEq, Clone)]
+pub enum LockType {
+    Update,
+    NoKeyUpdate,
+    Share,
+    KeyShare,
+}
+
+#[pyclass(eq, eq_int)]
+#[derive(PartialEq, Clone)]
+pub enum LockBehavior {
+    Nowait,
+    SkipLocked,
+}

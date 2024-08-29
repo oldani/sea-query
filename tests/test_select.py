@@ -2,6 +2,8 @@ from sea_query import (
     Condition,
     DBEngine,
     Expr,
+    LockBehavior,
+    LockType,
     NullsOrder,
     OrderBy,
     Query,
@@ -562,3 +564,142 @@ def test_union_chained():
         query.build_sql(DBEngine.Mysql)
         == "SELECT  FROM `table1` UNION (SELECT  FROM `table2`) UNION ALL (SELECT  FROM `table3`)"
     )
+
+
+def test_lock_for_update():
+    query = Query.select().from_table("table").lock(LockType.Update)
+
+    assert query.build_sql(DBEngine.Postgres) == 'SELECT  FROM "table" FOR UPDATE'
+    assert query.build_sql(DBEngine.Mysql) == "SELECT  FROM `table` FOR UPDATE"
+
+
+def test_lock_for_no_key_update():
+    query = Query.select().from_table("table").lock(LockType.NoKeyUpdate)
+
+    assert (
+        query.build_sql(DBEngine.Postgres) == 'SELECT  FROM "table" FOR NO KEY UPDATE'
+    )
+    assert query.build_sql(DBEngine.Mysql) == "SELECT  FROM `table` FOR NO KEY UPDATE"
+
+
+def test_lock_for_share():
+    query = Query.select().from_table("table").lock(LockType.Share)
+
+    assert query.build_sql(DBEngine.Postgres) == 'SELECT  FROM "table" FOR SHARE'
+    assert query.build_sql(DBEngine.Mysql) == "SELECT  FROM `table` FOR SHARE"
+
+
+def test_lock_for_key_share():
+    query = Query.select().from_table("table").lock(LockType.KeyShare)
+
+    assert query.build_sql(DBEngine.Postgres) == 'SELECT  FROM "table" FOR KEY SHARE'
+    assert query.build_sql(DBEngine.Mysql) == "SELECT  FROM `table` FOR KEY SHARE"
+
+
+def test_lock_with_tables():
+    query = (
+        Query.select()
+        .from_table("table1")
+        .lock_with_tables(LockType.Update, tables=["table2"])
+    )
+    assert (
+        query.build_sql(DBEngine.Postgres)
+        == 'SELECT  FROM "table1" FOR UPDATE OF "table2"'
+    )
+    assert (
+        query.build_sql(DBEngine.Mysql)
+        == "SELECT  FROM `table1` FOR UPDATE OF `table2`"
+    )
+
+    query = (
+        Query.select()
+        .from_table("table1")
+        .lock_with_tables(LockType.Update, tables=["table2", "table3"])
+    )
+    assert (
+        query.build_sql(DBEngine.Postgres)
+        == 'SELECT  FROM "table1" FOR UPDATE OF "table2", "table3"'
+    )
+    assert (
+        query.build_sql(DBEngine.Mysql)
+        == "SELECT  FROM `table1` FOR UPDATE OF `table2`, `table3`"
+    )
+
+
+def test_lock_with_behavior_nowait():
+    query = (
+        Query.select()
+        .from_table("table")
+        .lock_with_behavior(LockType.Update, LockBehavior.Nowait)
+    )
+
+    assert (
+        query.build_sql(DBEngine.Postgres) == 'SELECT  FROM "table" FOR UPDATE NOWAIT'
+    )
+    assert query.build_sql(DBEngine.Mysql) == "SELECT  FROM `table` FOR UPDATE NOWAIT"
+
+
+def test_lock_with_behavior_skip_locked():
+    query = (
+        Query.select()
+        .from_table("table")
+        .lock_with_behavior(LockType.Update, LockBehavior.SkipLocked)
+    )
+
+    assert (
+        query.build_sql(DBEngine.Postgres)
+        == 'SELECT  FROM "table" FOR UPDATE SKIP LOCKED'
+    )
+    assert (
+        query.build_sql(DBEngine.Mysql) == "SELECT  FROM `table` FOR UPDATE SKIP LOCKED"
+    )
+
+
+def test_lock_with_tables_behavior():
+    query = (
+        Query.select()
+        .from_table("table1")
+        .lock_with_tables_behavior(
+            LockType.Update, tables=["table2"], behavior=LockBehavior.Nowait
+        )
+    )
+    assert (
+        query.build_sql(DBEngine.Postgres)
+        == 'SELECT  FROM "table1" FOR UPDATE OF "table2" NOWAIT'
+    )
+    assert (
+        query.build_sql(DBEngine.Mysql)
+        == "SELECT  FROM `table1` FOR UPDATE OF `table2` NOWAIT"
+    )
+
+    query = (
+        Query.select()
+        .from_table("table1")
+        .lock_with_tables_behavior(
+            LockType.Update,
+            tables=["table2", "table3"],
+            behavior=LockBehavior.SkipLocked,
+        )
+    )
+    assert (
+        query.build_sql(DBEngine.Postgres)
+        == 'SELECT  FROM "table1" FOR UPDATE OF "table2", "table3" SKIP LOCKED'
+    )
+    assert (
+        query.build_sql(DBEngine.Mysql)
+        == "SELECT  FROM `table1` FOR UPDATE OF `table2`, `table3` SKIP LOCKED"
+    )
+
+
+def test_lock_shared():
+    query = Query.select().from_table("table").lock_shared()
+
+    assert query.build_sql(DBEngine.Postgres) == 'SELECT  FROM "table" FOR SHARE'
+    assert query.build_sql(DBEngine.Mysql) == "SELECT  FROM `table` FOR SHARE"
+
+
+def test_lock_exclusive():
+    query = Query.select().from_table("table").lock_exclusive()
+
+    assert query.build_sql(DBEngine.Postgres) == 'SELECT  FROM "table" FOR UPDATE'
+    assert query.build_sql(DBEngine.Mysql) == "SELECT  FROM `table` FOR UPDATE"

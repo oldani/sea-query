@@ -3,6 +3,7 @@ use sea_query::{
     backend::{MysqlQueryBuilder, PostgresQueryBuilder, SqliteQueryBuilder},
     query::{
         DeleteStatement as SeaDeleteStatement, InsertStatement as SeaInsertStatement,
+        LockBehavior as SeaLockBehavior, LockType as SeaLockType,
         SelectStatement as SeaSelectStatement, UnionType as SeaUnionType,
         UpdateStatement as SeaUpdateStatement,
     },
@@ -10,7 +11,7 @@ use sea_query::{
 };
 
 use crate::expr::{Condition, ConditionExpression, SimpleExpr};
-use crate::types::{DBEngine, NullsOrder, OrderBy, UnionType};
+use crate::types::{DBEngine, LockBehavior, LockType, NullsOrder, OrderBy, UnionType};
 
 #[pyclass]
 pub struct Query;
@@ -273,6 +274,88 @@ impl SelectStatement {
             UnionType::All => SeaUnionType::All,
         };
         slf.0.union(union_type, query.0);
+        slf
+    }
+
+    fn lock(mut slf: PyRefMut<Self>, lock_type: LockType) -> PyRefMut<Self> {
+        let lock_type = match lock_type {
+            LockType::Update => SeaLockType::Update,
+            LockType::NoKeyUpdate => SeaLockType::NoKeyUpdate,
+            LockType::Share => SeaLockType::Share,
+            LockType::KeyShare => SeaLockType::KeyShare,
+        };
+        slf.0.lock(lock_type);
+        slf
+    }
+
+    fn lock_with_tables(
+        mut slf: PyRefMut<Self>,
+        lock_type: LockType,
+        tables: Vec<String>,
+    ) -> PyRefMut<Self> {
+        let lock_type = match lock_type {
+            LockType::Update => SeaLockType::Update,
+            LockType::NoKeyUpdate => SeaLockType::NoKeyUpdate,
+            LockType::Share => SeaLockType::Share,
+            LockType::KeyShare => SeaLockType::KeyShare,
+        };
+        slf.0.lock_with_tables(
+            lock_type,
+            tables.iter().map(Alias::new).collect::<Vec<Alias>>(),
+        );
+        slf
+    }
+
+    fn lock_with_behavior(
+        mut slf: PyRefMut<Self>,
+        lock_type: LockType,
+        behavior: LockBehavior,
+    ) -> PyRefMut<Self> {
+        let lock_type = match lock_type {
+            LockType::Update => SeaLockType::Update,
+            LockType::NoKeyUpdate => SeaLockType::NoKeyUpdate,
+            LockType::Share => SeaLockType::Share,
+            LockType::KeyShare => SeaLockType::KeyShare,
+        };
+        let behavior = match behavior {
+            LockBehavior::Nowait => SeaLockBehavior::Nowait,
+            LockBehavior::SkipLocked => SeaLockBehavior::SkipLocked,
+        };
+        slf.0.lock_with_behavior(lock_type, behavior);
+        slf
+    }
+
+    fn lock_with_tables_behavior(
+        mut slf: PyRefMut<Self>,
+        lock_type: LockType,
+        tables: Vec<String>,
+        behavior: LockBehavior,
+    ) -> PyRefMut<Self> {
+        let lock_type = match lock_type {
+            LockType::Update => SeaLockType::Update,
+            LockType::NoKeyUpdate => SeaLockType::NoKeyUpdate,
+            LockType::Share => SeaLockType::Share,
+            LockType::KeyShare => SeaLockType::KeyShare,
+        };
+        let behavior = match behavior {
+            LockBehavior::Nowait => SeaLockBehavior::Nowait,
+            LockBehavior::SkipLocked => SeaLockBehavior::SkipLocked,
+        };
+        slf.0.lock_with_tables_behavior(
+            lock_type,
+            tables.iter().map(Alias::new).collect::<Vec<Alias>>(),
+            behavior,
+        );
+        slf
+    }
+
+    fn lock_shared(mut slf: PyRefMut<Self>) -> PyRefMut<Self> {
+        slf.0.lock_shared();
+        slf
+    }
+
+    fn lock_exclusive(mut slf: PyRefMut<Self>) -> PyRefMut<Self> {
+        slf.0.lock_exclusive();
         slf
     }
 

@@ -9,6 +9,8 @@ fn sea_query(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<types::OrderBy>()?;
     m.add_class::<types::NullsOrder>()?;
     m.add_class::<types::UnionType>()?;
+    m.add_class::<types::LockType>()?;
+    m.add_class::<types::LockBehavior>()?;
     m.add_class::<types::DBEngine>()?;
     m.add_class::<query::Query>()?;
     m.add_class::<query::SelectStatement>()?;

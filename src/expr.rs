@@ -1,7 +1,10 @@
 use pyo3::prelude::*;
 use sea_query::{
     expr::{Expr as SeaExpr, SimpleExpr as SeaSimpleExpr},
-    query::{Condition as SeaCondition, ConditionExpression as SeaConditionExpression},
+    query::{
+        Condition as SeaCondition, ConditionExpression as SeaConditionExpression,
+        OnConflict as SeaOnConflict,
+    },
     Alias,
 };
 
@@ -197,4 +200,30 @@ impl Condition {
 pub enum ConditionExpression {
     Condition(Condition),
     SimpleExpr(SimpleExpr),
+}
+
+#[pyclass]
+#[derive(Clone)]
+pub struct OnConflict(pub SeaOnConflict);
+
+#[pymethods]
+impl OnConflict {
+    #[staticmethod]
+    fn column(name: String) -> Self {
+        Self(SeaOnConflict::column(Alias::new(name)))
+    }
+
+    #[staticmethod]
+    fn columns(columns: Vec<String>) -> Self {
+        Self(SeaOnConflict::columns(
+            columns.iter().map(Alias::new).collect::<Vec<Alias>>(),
+        ))
+    }
+
+    fn do_nothing(mut slf: PyRefMut<Self>) -> PyRefMut<Self> {
+        slf.0.do_nothing();
+        slf
+    }
+
+    // TODO: Implement missing methods
 }

@@ -20,5 +20,6 @@ fn sea_query(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<expr::SimpleExpr>()?;
     m.add_class::<expr::Expr>()?;
     m.add_class::<expr::Condition>()?;
+    m.add_class::<expr::OnConflict>()?;
     Ok(())
 }

@@ -24,6 +24,7 @@ impl From<&PyValue> for Value {
             PyValue::Float(v) => Value::Double(Some(*v)),
             PyValue::Int(v) => Value::BigInt(Some(*v)),
             PyValue::String(v) => Value::String(Some(Box::new(v.clone()))),
+            // TODO: Add support for other types
         }
     }
 }

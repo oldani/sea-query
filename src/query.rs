@@ -1,6 +1,7 @@
 use pyo3::prelude::*;
 use sea_query::{
     backend::{MysqlQueryBuilder, PostgresQueryBuilder, SqliteQueryBuilder},
+    expr::SimpleExpr as SeaSimpleExpr,
     query::{
         DeleteStatement as SeaDeleteStatement, InsertStatement as SeaInsertStatement,
         LockBehavior as SeaLockBehavior, LockType as SeaLockType,
@@ -10,8 +11,8 @@ use sea_query::{
     Alias, Asterisk, NullOrdering, Order,
 };
 
-use crate::expr::{Condition, ConditionExpression, SimpleExpr};
-use crate::types::{DBEngine, LockBehavior, LockType, NullsOrder, OrderBy, UnionType};
+use crate::expr::{Condition, ConditionExpression, OnConflict, SimpleExpr};
+use crate::types::{DBEngine, LockBehavior, LockType, NullsOrder, OrderBy, PyValue, UnionType};
 
 #[pyclass]
 pub struct Query;
@@ -376,6 +377,56 @@ impl InsertStatement {
     #[new]
     fn new() -> Self {
         Self(SeaInsertStatement::new())
+    }
+
+    fn into(mut slf: PyRefMut<Self>, table: String) -> PyRefMut<Self> {
+        slf.0.into_table(Alias::new(table));
+        slf
+    }
+
+    fn columns(mut slf: PyRefMut<Self>, columns: Vec<String>) -> PyRefMut<Self> {
+        slf.0
+            .columns(columns.iter().map(Alias::new).collect::<Vec<Alias>>());
+        slf
+    }
+
+    fn values(mut slf: PyRefMut<Self>, values: Vec<PyValue>) -> PyRefMut<Self> {
+        let values = values
+            .iter()
+            .map(SeaSimpleExpr::from)
+            .collect::<Vec<SeaSimpleExpr>>();
+        slf.0.values(values).expect("Failed to add values");
+        slf
+    }
+
+    fn select_from(mut slf: PyRefMut<Self>, select: SelectStatement) -> PyRefMut<Self> {
+        slf.0
+            .select_from(select.0)
+            .expect("Failed to add select statement");
+        slf
+    }
+
+    fn on_conflict(mut slf: PyRefMut<Self>, on_conflict: OnConflict) -> PyRefMut<Self> {
+        slf.0.on_conflict(on_conflict.0);
+        slf
+    }
+
+    fn returning_all(mut slf: PyRefMut<Self>) -> PyRefMut<Self> {
+        slf.0.returning_all();
+        slf
+    }
+
+    fn returning_column(mut slf: PyRefMut<Self>, column: String) -> PyRefMut<Self> {
+        slf.0.returning_col(Alias::new(column));
+        slf
+    }
+
+    fn build_sql(&self, engine: &DBEngine) -> String {
+        match engine {
+            DBEngine::Mysql => self.0.to_string(MysqlQueryBuilder),
+            DBEngine::Postgres => self.0.to_string(PostgresQueryBuilder),
+            DBEngine::Sqlite => self.0.to_string(SqliteQueryBuilder),
+        }
     }
 }
 

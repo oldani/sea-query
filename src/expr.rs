@@ -2,11 +2,11 @@ use pyo3::prelude::*;
 use sea_query::{
     expr::{Expr as SeaExpr, SimpleExpr as SeaSimpleExpr},
     query::{Condition as SeaCondition, ConditionExpression as SeaConditionExpression},
-    value::Value,
     Alias,
 };
 
 use crate::query::SelectStatement;
+use crate::types::PyValue;
 
 #[pyclass]
 #[derive(Clone)]
@@ -24,25 +24,6 @@ impl SimpleExpr {
 
     fn __invert__(&self) -> Self {
         Self(self.0.clone().not())
-    }
-}
-
-#[derive(FromPyObject)]
-pub enum PyValue {
-    Bool(bool),
-    Float(f64),
-    Int(i64),
-    String(String),
-}
-
-impl From<&PyValue> for Value {
-    fn from(value: &PyValue) -> Self {
-        match value {
-            PyValue::Bool(v) => Value::Bool(Some(*v)),
-            PyValue::Float(v) => Value::Double(Some(*v)),
-            PyValue::Int(v) => Value::BigInt(Some(*v)),
-            PyValue::String(v) => Value::String(Some(Box::new(v.clone()))),
-        }
     }
 }
 

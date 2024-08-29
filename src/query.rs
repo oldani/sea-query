@@ -10,7 +10,7 @@ use sea_query::{
 };
 
 use crate::expr::{Condition, ConditionExpression, SimpleExpr};
-use crate::utils::DBEngine;
+use crate::types::{DBEngine, NullsOrder, OrderBy, UnionType};
 
 #[pyclass]
 pub struct Query;
@@ -36,29 +36,6 @@ impl Query {
     fn delete() -> DeleteStatement {
         DeleteStatement::new()
     }
-}
-
-#[pyclass(eq, eq_int)]
-#[derive(PartialEq, Clone)]
-pub enum OrderBy {
-    Asc,
-    Desc,
-}
-
-#[pyclass(eq, eq_int)]
-#[derive(PartialEq, Clone)]
-pub enum NullsOrder {
-    First,
-    Last,
-}
-
-#[pyclass(eq, eq_int)]
-#[derive(PartialEq, Clone)]
-pub enum UnionType {
-    Intersect,
-    Distinct,
-    Except,
-    All,
 }
 
 #[pyclass]

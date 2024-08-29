@@ -1,16 +1,6 @@
-from sea_query import DBEngine, InsertStatement, OnConflict, Query
+from sea_query import OnConflict, Query
 
-
-def assert_query(
-    query: InsertStatement,
-    expected: str,
-    mysql_expected: str = None,
-):
-    assert query.build_sql(DBEngine.Postgres) == expected
-    assert query.build_sql(DBEngine.Sqlite) == expected
-    assert query.build_sql(DBEngine.Mysql) == mysql_expected or expected.replace(
-        '"', "`"
-    )
+from tests.utils import assert_query
 
 
 def test_insert_into():

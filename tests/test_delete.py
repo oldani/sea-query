@@ -1,16 +1,6 @@
-from sea_query import Condition, DBEngine, DeleteStatement, Expr, Query
+from sea_query import Condition, Expr, Query
 
-
-def assert_query(
-    query: DeleteStatement,
-    expected: str,
-    mysql_expected: str = None,
-):
-    assert query.build_sql(DBEngine.Postgres) == expected
-    assert query.build_sql(DBEngine.Sqlite) == expected
-    assert query.build_sql(DBEngine.Mysql) == mysql_expected or expected.replace(
-        '"', "`"
-    )
+from tests.utils import assert_query
 
 
 def test_delete_from_table():

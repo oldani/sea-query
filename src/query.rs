@@ -502,4 +502,42 @@ impl DeleteStatement {
     fn new() -> Self {
         Self(SeaDeleteStatement::new())
     }
+
+    fn from_table(mut slf: PyRefMut<Self>, name: String) -> PyRefMut<Self> {
+        slf.0.from_table(Alias::new(name));
+        slf
+    }
+
+    fn and_where(mut slf: PyRefMut<Self>, expr: SimpleExpr) -> PyRefMut<Self> {
+        slf.0.and_where(expr.0);
+        slf
+    }
+
+    fn cond_where(mut slf: PyRefMut<Self>, cond: Condition) -> PyRefMut<Self> {
+        slf.0.cond_where(cond.0);
+        slf
+    }
+
+    fn limit(mut slf: PyRefMut<Self>, limit: u64) -> PyRefMut<Self> {
+        slf.0.limit(limit);
+        slf
+    }
+
+    fn returning_all(mut slf: PyRefMut<Self>) -> PyRefMut<Self> {
+        slf.0.returning_all();
+        slf
+    }
+
+    fn returning_column(mut slf: PyRefMut<Self>, name: String) -> PyRefMut<Self> {
+        slf.0.returning_col(Alias::new(name));
+        slf
+    }
+
+    fn build_sql(&self, engine: &DBEngine) -> String {
+        match engine {
+            DBEngine::Mysql => self.0.to_string(MysqlQueryBuilder),
+            DBEngine::Postgres => self.0.to_string(PostgresQueryBuilder),
+            DBEngine::Sqlite => self.0.to_string(SqliteQueryBuilder),
+        }
+    }
 }

@@ -6,6 +6,7 @@ from sea_query import (
     OrderBy,
     Query,
     SelectStatement,
+    UnionType,
 )
 
 
@@ -13,14 +14,12 @@ def assert_query(
     query: SelectStatement,
     expected: str,
     mysql_expected: str = None,
-    disable_mysql: bool = False,
 ):
     assert query.build_sql(DBEngine.Postgres) == expected
     assert query.build_sql(DBEngine.Sqlite) == expected
-    if not disable_mysql:
-        assert query.build_sql(DBEngine.Mysql) == mysql_expected or expected.replace(
-            '"', "`"
-        )
+    assert query.build_sql(DBEngine.Mysql) == mysql_expected or expected.replace(
+        '"', "`"
+    )
 
 
 def test_select_all():
@@ -424,10 +423,15 @@ def test_full_outer_join():
             Expr.column("column1", table="table1").equals("column2", table="table2"),
         )
     )
-    assert_query(
-        query,
-        'SELECT  FROM "table1" FULL OUTER JOIN "table2" ON "table1"."column1" = "table2"."column2"',
-        disable_mysql=True,
+
+    assert (
+        query.build_sql(DBEngine.Postgres)
+        == 'SELECT  FROM "table1" FULL OUTER JOIN "table2" ON "table1"."column1" = "table2"."column2"'
+    )
+
+    assert (
+        query.build_sql(DBEngine.Sqlite)
+        == 'SELECT  FROM "table1" FULL OUTER JOIN "table2" ON "table1"."column1" = "table2"."column2"'
     )
 
 
@@ -451,4 +455,110 @@ def test_mixed_joins_chained():
     assert_query(
         query,
         'SELECT  FROM "table1" LEFT JOIN "table2" ON "table1"."column1" = "table2"."column2" RIGHT JOIN "table3" ON "table1"."column3" = "table3"."column4" INNER JOIN "table4" ON "table1"."column5" = "table4"."column6"',
+    )
+
+
+def test_union_intersect():
+    query = (
+        Query.select()
+        .from_table("table1")
+        .union(Query.select().from_table("table2"), UnionType.Intersect)
+    )
+
+    assert (
+        query.build_sql(DBEngine.Postgres)
+        == 'SELECT  FROM "table1" INTERSECT (SELECT  FROM "table2")'
+    )
+    assert (
+        query.build_sql(DBEngine.Sqlite)
+        == 'SELECT  FROM "table1" INTERSECT SELECT  FROM "table2"'
+    )
+    assert (
+        query.build_sql(DBEngine.Mysql)
+        == "SELECT  FROM `table1` INTERSECT (SELECT  FROM `table2`)"
+    )
+
+
+def test_union_distinct():
+    query = (
+        Query.select()
+        .from_table("table1")
+        .union(Query.select().from_table("table2"), UnionType.Distinct)
+    )
+
+    assert (
+        query.build_sql(DBEngine.Postgres)
+        == 'SELECT  FROM "table1" UNION (SELECT  FROM "table2")'
+    )
+    assert (
+        query.build_sql(DBEngine.Sqlite)
+        == 'SELECT  FROM "table1" UNION SELECT  FROM "table2"'
+    )
+    assert (
+        query.build_sql(DBEngine.Mysql)
+        == "SELECT  FROM `table1` UNION (SELECT  FROM `table2`)"
+    )
+
+
+def test_union_except():
+    query = (
+        Query.select()
+        .from_table("table1")
+        .union(Query.select().from_table("table2"), UnionType.Except)
+    )
+
+    assert (
+        query.build_sql(DBEngine.Postgres)
+        == 'SELECT  FROM "table1" EXCEPT (SELECT  FROM "table2")'
+    )
+    assert (
+        query.build_sql(DBEngine.Sqlite)
+        == 'SELECT  FROM "table1" EXCEPT SELECT  FROM "table2"'
+    )
+    assert (
+        query.build_sql(DBEngine.Mysql)
+        == "SELECT  FROM `table1` EXCEPT (SELECT  FROM `table2`)"
+    )
+
+
+def test_union_all():
+    query = (
+        Query.select()
+        .from_table("table1")
+        .union(Query.select().from_table("table2"), UnionType.All)
+    )
+
+    assert (
+        query.build_sql(DBEngine.Postgres)
+        == 'SELECT  FROM "table1" UNION ALL (SELECT  FROM "table2")'
+    )
+    assert (
+        query.build_sql(DBEngine.Sqlite)
+        == 'SELECT  FROM "table1" UNION ALL SELECT  FROM "table2"'
+    )
+    assert (
+        query.build_sql(DBEngine.Mysql)
+        == "SELECT  FROM `table1` UNION ALL (SELECT  FROM `table2`)"
+    )
+
+
+def test_union_chained():
+    query = (
+        Query.select()
+        .from_table("table1")
+        .union(Query.select().from_table("table2"), UnionType.Distinct)
+        .union(Query.select().from_table("table3"), UnionType.All)
+    )
+
+    assert (
+        query.build_sql(DBEngine.Postgres)
+        == 'SELECT  FROM "table1" UNION (SELECT  FROM "table2") UNION ALL (SELECT  FROM "table3")'
+    )
+    assert (
+        query.build_sql(DBEngine.Sqlite)
+        == 'SELECT  FROM "table1" UNION SELECT  FROM "table2" UNION ALL SELECT  FROM "table3"'
+    )
+    assert (
+        query.build_sql(DBEngine.Mysql)
+        == "SELECT  FROM `table1` UNION (SELECT  FROM `table2`) UNION ALL (SELECT  FROM `table3`)"
     )

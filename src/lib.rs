@@ -10,6 +10,7 @@ fn sea_query(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<query::Condition>()?;
     m.add_class::<query::OrderBy>()?;
     m.add_class::<query::NullsOrder>()?;
+    m.add_class::<query::UnionType>()?;
     m.add_class::<query::SelectStatement>()?;
     m.add_class::<query::InsertStatement>()?;
     m.add_class::<query::UpdateStatement>()?;

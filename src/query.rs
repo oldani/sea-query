@@ -4,7 +4,8 @@ use sea_query::{
     query::{
         Condition as SeaCondition, ConditionExpression as SeaConditionExpression,
         DeleteStatement as SeaDeleteStatement, InsertStatement as SeaInsertStatement,
-        SelectStatement as SeaSelectStatement, UpdateStatement as SeaUpdateStatement,
+        SelectStatement as SeaSelectStatement, UnionType as SeaUnionType,
+        UpdateStatement as SeaUpdateStatement,
     },
     Alias, Asterisk, NullOrdering, Order,
 };
@@ -84,6 +85,15 @@ pub enum OrderBy {
 pub enum NullsOrder {
     First,
     Last,
+}
+
+#[pyclass(eq, eq_int)]
+#[derive(PartialEq, Clone)]
+pub enum UnionType {
+    Intersect,
+    Distinct,
+    Except,
+    All,
 }
 
 #[pyclass]
@@ -306,6 +316,21 @@ impl SelectStatement {
                 slf.0.full_outer_join(Alias::new(table), expr.0);
             }
         }
+        slf
+    }
+
+    fn union(
+        mut slf: PyRefMut<Self>,
+        query: SelectStatement,
+        union_type: UnionType,
+    ) -> PyRefMut<Self> {
+        let union_type = match union_type {
+            UnionType::Intersect => SeaUnionType::Intersect,
+            UnionType::Distinct => SeaUnionType::Distinct,
+            UnionType::Except => SeaUnionType::Except,
+            UnionType::All => SeaUnionType::All,
+        };
+        slf.0.union(union_type, query.0);
         slf
     }
 

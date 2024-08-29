@@ -2,7 +2,6 @@ use pyo3::prelude::*;
 use sea_query::{
     backend::{MysqlQueryBuilder, PostgresQueryBuilder, SqliteQueryBuilder},
     query::{
-        Condition as SeaCondition, ConditionExpression as SeaConditionExpression,
         DeleteStatement as SeaDeleteStatement, InsertStatement as SeaInsertStatement,
         SelectStatement as SeaSelectStatement, UnionType as SeaUnionType,
         UpdateStatement as SeaUpdateStatement,
@@ -10,7 +9,7 @@ use sea_query::{
     Alias, Asterisk, NullOrdering, Order,
 };
 
-use crate::expr::SimpleExpr;
+use crate::expr::{Condition, ConditionExpression, SimpleExpr};
 use crate::utils::DBEngine;
 
 #[pyclass]
@@ -37,40 +36,6 @@ impl Query {
     fn delete() -> DeleteStatement {
         DeleteStatement::new()
     }
-}
-
-#[pyclass]
-#[derive(Clone)]
-pub struct Condition(pub SeaCondition);
-
-#[pymethods]
-impl Condition {
-    #[staticmethod]
-    fn all() -> Self {
-        Self(SeaCondition::all())
-    }
-
-    #[staticmethod]
-    fn any() -> Self {
-        Self(SeaCondition::any())
-    }
-
-    fn add(&self, expr: ConditionExpression) -> Self {
-        Self(self.0.clone().add(match expr {
-            ConditionExpression::Condition(cond) => SeaConditionExpression::Condition(cond.0),
-            ConditionExpression::SimpleExpr(expr) => SeaConditionExpression::SimpleExpr(expr.0),
-        }))
-    }
-
-    fn __invert__(&self) -> Self {
-        Self(self.0.clone().not())
-    }
-}
-
-#[derive(FromPyObject)]
-pub enum ConditionExpression {
-    Condition(Condition),
-    SimpleExpr(SimpleExpr),
 }
 
 #[pyclass(eq, eq_int)]

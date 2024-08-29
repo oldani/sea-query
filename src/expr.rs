@@ -1,6 +1,7 @@
 use pyo3::prelude::*;
 use sea_query::{
     expr::{Expr as SeaExpr, SimpleExpr as SeaSimpleExpr},
+    query::{Condition as SeaCondition, ConditionExpression as SeaConditionExpression},
     value::Value,
     Alias,
 };
@@ -181,4 +182,38 @@ impl Expr {
     fn exists(query: SelectStatement) -> SimpleExpr {
         SimpleExpr(SeaExpr::exists(query.0))
     }
+}
+
+#[pyclass]
+#[derive(Clone)]
+pub struct Condition(pub SeaCondition);
+
+#[pymethods]
+impl Condition {
+    #[staticmethod]
+    fn all() -> Self {
+        Self(SeaCondition::all())
+    }
+
+    #[staticmethod]
+    fn any() -> Self {
+        Self(SeaCondition::any())
+    }
+
+    fn add(&self, expr: ConditionExpression) -> Self {
+        Self(self.0.clone().add(match expr {
+            ConditionExpression::Condition(cond) => SeaConditionExpression::Condition(cond.0),
+            ConditionExpression::SimpleExpr(expr) => SeaConditionExpression::SimpleExpr(expr.0),
+        }))
+    }
+
+    fn __invert__(&self) -> Self {
+        Self(self.0.clone().not())
+    }
+}
+
+#[derive(FromPyObject)]
+pub enum ConditionExpression {
+    Condition(Condition),
+    SimpleExpr(SimpleExpr),
 }

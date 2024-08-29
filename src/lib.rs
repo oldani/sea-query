@@ -7,7 +7,6 @@ mod utils;
 #[pymodule]
 fn sea_query(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<query::Query>()?;
-    m.add_class::<query::Condition>()?;
     m.add_class::<query::OrderBy>()?;
     m.add_class::<query::NullsOrder>()?;
     m.add_class::<query::UnionType>()?;
@@ -17,6 +16,7 @@ fn sea_query(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<query::DeleteStatement>()?;
     m.add_class::<expr::SimpleExpr>()?;
     m.add_class::<expr::Expr>()?;
+    m.add_class::<expr::Condition>()?;
     m.add_class::<utils::DBEngine>()?;
     Ok(())
 }

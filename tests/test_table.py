@@ -49,6 +49,37 @@ def test_create_table_with_columns():
     )
 
 
+def test_drop_table():
+    statement = Table.drop().table("table")
+    assert_query(statement, 'DROP TABLE "table"')
+
+
+def test_drop_multiple_tables():
+    statement = Table.drop().table("table1").table("table2")
+    assert_query(statement, 'DROP TABLE "table1", "table2"')
+
+
+def test_drop_table_if_exists():
+    statement = Table.drop().table("table").if_exists()
+    assert_query(statement, 'DROP TABLE IF EXISTS "table"')
+
+
+def test_drop_table_restrict():
+    statement = Table.drop().table("table").restrict()
+
+    assert statement.build_sql(DBEngine.Postgres) == 'DROP TABLE "table" RESTRICT'
+    assert statement.build_sql(DBEngine.Sqlite) == 'DROP TABLE "table"'
+    assert statement.build_sql(DBEngine.Mysql) == "DROP TABLE `table` RESTRICT"
+
+
+def test_drop_table_cascade():
+    statement = Table.drop().table("table").cascade()
+
+    assert statement.build_sql(DBEngine.Postgres) == 'DROP TABLE "table" CASCADE'
+    assert statement.build_sql(DBEngine.Sqlite) == 'DROP TABLE "table"'
+    assert statement.build_sql(DBEngine.Mysql) == "DROP TABLE `table` CASCADE"
+
+
 def test_rename_table():
     statement = Table.rename().table("old_table", "new_table")
     assert_query(

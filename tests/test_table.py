@@ -47,3 +47,11 @@ def test_create_table_with_columns():
         "`age` int NULL "
         ")"
     )
+
+
+def test_truncate_table():
+    statement = Table.truncate().table("table")
+    assert statement.build_sql(DBEngine.Postgres) == 'TRUNCATE TABLE "table"'
+    # TODO: Sqlite does not support TRUNCATE TABLE
+    # TODO: Add test to catch the exception
+    assert statement.build_sql(DBEngine.Mysql) == "TRUNCATE TABLE `table`"

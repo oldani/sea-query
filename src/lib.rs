@@ -25,5 +25,6 @@ fn sea_query(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<table::Column>()?;
     m.add_class::<table::Table>()?;
     m.add_class::<table::TableCreateStatement>()?;
+    m.add_class::<table::TableTruncateStatement>()?;
     Ok(())
 }

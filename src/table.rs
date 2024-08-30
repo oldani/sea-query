@@ -1,7 +1,10 @@
 use pyo3::{pyclass, pymethods, PyRefMut};
 use sea_query::{
     backend::{MysqlQueryBuilder, PostgresQueryBuilder, SqliteQueryBuilder},
-    table::{ColumnDef, TableCreateStatement as SeaTableCreateStatement},
+    table::{
+        ColumnDef, TableCreateStatement as SeaTableCreateStatement,
+        TableTruncateStatement as SeaTableTruncateStatement,
+    },
     Alias,
 };
 
@@ -241,6 +244,30 @@ impl TableCreateStatement {
 }
 
 #[pyclass]
+pub struct TableTruncateStatement(SeaTableTruncateStatement);
+
+#[pymethods]
+impl TableTruncateStatement {
+    #[new]
+    fn new() -> Self {
+        Self(SeaTableTruncateStatement::new())
+    }
+
+    fn table(mut slf: PyRefMut<Self>, name: String) -> PyRefMut<Self> {
+        slf.0.table(Alias::new(name));
+        slf
+    }
+
+    fn build_sql(&self, builder: &DBEngine) -> String {
+        match builder {
+            DBEngine::Mysql => self.0.to_string(MysqlQueryBuilder),
+            DBEngine::Postgres => self.0.to_string(PostgresQueryBuilder),
+            DBEngine::Sqlite => self.0.to_string(SqliteQueryBuilder),
+        }
+    }
+}
+
+#[pyclass]
 pub struct Table;
 
 #[pymethods]
@@ -248,5 +275,10 @@ impl Table {
     #[staticmethod]
     fn create() -> TableCreateStatement {
         TableCreateStatement::new()
+    }
+
+    #[staticmethod]
+    fn truncate() -> TableTruncateStatement {
+        TableTruncateStatement::new()
     }
 }

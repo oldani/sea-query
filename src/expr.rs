@@ -46,6 +46,11 @@ impl Expr {
     }
 
     #[staticmethod]
+    fn value(value: PyValue) -> Self {
+        Self(SeaExpr::val(&value))
+    }
+
+    #[staticmethod]
     fn expr(expr: Expr) -> Self {
         Self(SeaExpr::expr(expr.0.clone()))
     }

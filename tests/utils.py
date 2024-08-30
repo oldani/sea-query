@@ -14,8 +14,13 @@ def assert_query(
     expected: str,
     mysql_expected: str = None,
 ):
-    assert query.build_sql(DBEngine.Postgres) == expected
-    assert query.build_sql(DBEngine.Sqlite) == expected
-    assert query.build_sql(DBEngine.Mysql) == mysql_expected or expected.replace(
-        '"', "`"
-    )
+    assert (
+        query.build_sql(DBEngine.Postgres) == expected
+    ), f"{query.build_sql(DBEngine.Postgres)} != {expected}"
+    assert (
+        query.build_sql(DBEngine.Sqlite) == expected
+    ), f"{query.build_sql(DBEngine.Sqlite)} != {expected}"
+    assert (
+        query.build_sql(DBEngine.Mysql)
+        == (mysql_expected or expected.replace('"', "`"))
+    ), f"{query.build_sql(DBEngine.Mysql)} != {mysql_expected or expected.replace('\"', '`')}"

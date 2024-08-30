@@ -62,6 +62,7 @@ def test_update_returning_all():
     assert_query(
         query,
         'UPDATE "table" SET "column1" = 1 RETURNING *',
+        mysql_expected="UPDATE `table` SET `column1` = 1",
     )
 
 
@@ -72,4 +73,5 @@ def test_update_returning_column():
     assert_query(
         query,
         'UPDATE "table" SET "column1" = 1 RETURNING "column1"',
+        mysql_expected="UPDATE `table` SET `column1` = 1",
     )

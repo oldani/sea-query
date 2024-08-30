@@ -48,6 +48,7 @@ def test_delete_returning_all():
     assert_query(
         query,
         'DELETE FROM "table" RETURNING *',
+        mysql_expected="DELETE FROM `table`",
     )
 
 
@@ -56,4 +57,5 @@ def test_delete_returning_column():
     assert_query(
         query,
         'DELETE FROM "table" RETURNING "column"',
+        mysql_expected="DELETE FROM `table`",
     )

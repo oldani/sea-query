@@ -59,6 +59,7 @@ def test_returning_all():
     assert_query(
         query,
         'INSERT INTO "table" ("column1", "column2") VALUES (1, 3.5) RETURNING *',
+        mysql_expected="INSERT INTO `table` (`column1`, `column2`) VALUES (1, 3.5)",
     )
 
 
@@ -74,4 +75,5 @@ def test_insert_returning_column():
     assert_query(
         query,
         'INSERT INTO "table" ("column1", "column2") VALUES (1, 3.5) RETURNING "column1"',
+        mysql_expected="INSERT INTO `table` (`column1`, `column2`) VALUES (1, 3.5)",
     )

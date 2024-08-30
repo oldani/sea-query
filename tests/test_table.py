@@ -49,6 +49,15 @@ def test_create_table_with_columns():
     )
 
 
+def test_rename_table():
+    statement = Table.rename().table("old_table", "new_table")
+    assert_query(
+        statement,
+        'ALTER TABLE "old_table" RENAME TO "new_table"',
+        mysql_expected="RENAME TABLE `old_table` TO `new_table`",
+    )
+
+
 def test_truncate_table():
     statement = Table.truncate().table("table")
     assert statement.build_sql(DBEngine.Postgres) == 'TRUNCATE TABLE "table"'

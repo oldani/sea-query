@@ -3,6 +3,7 @@ use sea_query::{
     backend::{MysqlQueryBuilder, PostgresQueryBuilder, SqliteQueryBuilder},
     table::{
         ColumnDef, TableCreateStatement as SeaTableCreateStatement,
+        TableRenameStatement as SeaTableRenameStatement,
         TableTruncateStatement as SeaTableTruncateStatement,
     },
     Alias,
@@ -244,6 +245,30 @@ impl TableCreateStatement {
 }
 
 #[pyclass]
+pub struct TableRenameStatement(SeaTableRenameStatement);
+
+#[pymethods]
+impl TableRenameStatement {
+    #[new]
+    fn new() -> Self {
+        Self(SeaTableRenameStatement::new())
+    }
+
+    fn table(mut slf: PyRefMut<Self>, from_name: String, to_name: String) -> PyRefMut<Self> {
+        slf.0.table(Alias::new(from_name), Alias::new(to_name));
+        slf
+    }
+
+    fn build_sql(&self, builder: &DBEngine) -> String {
+        match builder {
+            DBEngine::Mysql => self.0.to_string(MysqlQueryBuilder),
+            DBEngine::Postgres => self.0.to_string(PostgresQueryBuilder),
+            DBEngine::Sqlite => self.0.to_string(SqliteQueryBuilder),
+        }
+    }
+}
+
+#[pyclass]
 pub struct TableTruncateStatement(SeaTableTruncateStatement);
 
 #[pymethods]
@@ -275,6 +300,11 @@ impl Table {
     #[staticmethod]
     fn create() -> TableCreateStatement {
         TableCreateStatement::new()
+    }
+
+    #[staticmethod]
+    fn rename() -> TableRenameStatement {
+        TableRenameStatement::new()
     }
 
     #[staticmethod]

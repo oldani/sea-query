@@ -2,6 +2,7 @@ use pyo3::prelude::*;
 
 mod expr;
 mod query;
+mod table;
 mod types;
 
 #[pymodule]
@@ -21,5 +22,8 @@ fn sea_query(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<expr::Expr>()?;
     m.add_class::<expr::Condition>()?;
     m.add_class::<expr::OnConflict>()?;
+    m.add_class::<table::Column>()?;
+    m.add_class::<table::Table>()?;
+    m.add_class::<table::TableCreateStatement>()?;
     Ok(())
 }

@@ -49,6 +49,40 @@ def test_create_table_with_columns():
     )
 
 
+def test_create_table_add_check_constraint():
+    statement = (
+        Table.create()
+        .name("users")
+        .column(Column("id").big_integer().primary_key().auto_increment())
+        .column(Column("positive_int").integer().null())
+        .check(Expr.column("positive_int").gte(0))
+    )
+
+    assert statement.build_sql(DBEngine.Postgres) == (
+        'CREATE TABLE "users" ( '
+        '"id" bigserial PRIMARY KEY, '
+        '"positive_int" integer NULL, '
+        'CHECK ("positive_int" >= 0) '
+        ")"
+    )
+
+    assert statement.build_sql(DBEngine.Sqlite) == (
+        'CREATE TABLE "users" ( '
+        '"id" integer PRIMARY KEY AUTOINCREMENT, '
+        '"positive_int" integer NULL, '
+        'CHECK ("positive_int" >= 0) '
+        ")"
+    )
+
+    assert statement.build_sql(DBEngine.Mysql) == (
+        "CREATE TABLE `users` ( "
+        "`id` bigint PRIMARY KEY AUTO_INCREMENT, "
+        "`positive_int` int NULL, "
+        "CHECK (`positive_int` >= 0) "
+        ")"
+    )
+
+
 def test_alter_table_add_column():
     statement = (
         Table.alter()

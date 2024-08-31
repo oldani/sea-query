@@ -49,6 +49,77 @@ def test_create_table_with_columns():
     )
 
 
+def test_alter_table_add_column():
+    statement = (
+        Table.alter()
+        .table("users")
+        .add_column(Column("email").string().string_len(128))
+    )
+    assert_query(
+        statement,
+        'ALTER TABLE "users" ADD COLUMN "email" varchar(128)',
+    )
+
+
+def test_alter_table_add_columns():
+    statement = (
+        Table.alter()
+        .table("users")
+        .add_column(Column("email").string().string_len(128))
+        .add_column(Column("phone").string().string_len(16))
+    )
+    assert statement.build_sql(DBEngine.Postgres) == (
+        'ALTER TABLE "users" ADD COLUMN "email" varchar(128), ADD COLUMN "phone" varchar(16)'
+    )
+    # TODO: Catch sqlite does not support multiple alter options
+    assert statement.build_sql(DBEngine.Mysql) == (
+        "ALTER TABLE `users` ADD COLUMN `email` varchar(128), ADD COLUMN `phone` varchar(16)"
+    )
+
+
+def test_alter_table_add_column_if_not_exists():
+    statement = (
+        Table.alter()
+        .table("users")
+        .add_column_if_not_exists(Column("email").string().string_len(128))
+    )
+
+    assert statement.build_sql(DBEngine.Postgres) == (
+        'ALTER TABLE "users" ADD COLUMN IF NOT EXISTS "email" varchar(128)'
+    )
+    assert statement.build_sql(DBEngine.Sqlite) == (
+        'ALTER TABLE "users" ADD COLUMN "email" varchar(128)'
+    )
+    assert statement.build_sql(DBEngine.Mysql) == (
+        "ALTER TABLE `users` ADD COLUMN IF NOT EXISTS `email` varchar(128)"
+    )
+
+
+def test_alter_table_modify_column():
+    statement = Table.alter().table("table").modify_column(Column("created_at").date())
+
+    assert statement.build_sql(DBEngine.Postgres) == (
+        'ALTER TABLE "table" ALTER COLUMN "created_at" TYPE date'
+    )
+    # TODO: Catch sqlite does not support modify column
+    assert statement.build_sql(DBEngine.Mysql) == (
+        "ALTER TABLE `table` MODIFY COLUMN `created_at` date"
+    )
+
+
+def test_alter_table_rename_column():
+    statement = Table.alter().table("table").rename_column("old_name", "new_name")
+    assert_query(
+        statement,
+        'ALTER TABLE "table" RENAME COLUMN "old_name" TO "new_name"',
+    )
+
+
+def test_alter_table_drop_column():
+    statement = Table.alter().table("table").drop_column("column")
+    assert_query(statement, 'ALTER TABLE "table" DROP COLUMN "column"')
+
+
 def test_drop_table():
     statement = Table.drop().table("table")
     assert_query(statement, 'DROP TABLE "table"')

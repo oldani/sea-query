@@ -2,7 +2,8 @@ use pyo3::{pyclass, pymethods, PyRefMut};
 use sea_query::{
     backend::{MysqlQueryBuilder, PostgresQueryBuilder, SqliteQueryBuilder},
     table::{
-        ColumnDef, TableCreateStatement as SeaTableCreateStatement,
+        ColumnDef, TableAlterStatement as SeaTableAlterStatement,
+        TableCreateStatement as SeaTableCreateStatement,
         TableDropStatement as SeaTableDropStatement,
         TableRenameStatement as SeaTableRenameStatement,
         TableTruncateStatement as SeaTableTruncateStatement,
@@ -246,6 +247,60 @@ impl TableCreateStatement {
 }
 
 #[pyclass]
+pub struct TableAlterStatement(SeaTableAlterStatement);
+
+#[pymethods]
+impl TableAlterStatement {
+    #[new]
+    fn new() -> Self {
+        Self(SeaTableAlterStatement::new())
+    }
+
+    fn table(mut slf: PyRefMut<Self>, name: String) -> PyRefMut<Self> {
+        slf.0.table(Alias::new(name));
+        slf
+    }
+
+    fn add_column(mut slf: PyRefMut<Self>, column: Column) -> PyRefMut<Self> {
+        slf.0.add_column(column.0);
+        slf
+    }
+
+    fn add_column_if_not_exists(mut slf: PyRefMut<Self>, column: Column) -> PyRefMut<Self> {
+        slf.0.add_column_if_not_exists(column.0);
+        slf
+    }
+
+    fn modify_column(mut slf: PyRefMut<Self>, column: Column) -> PyRefMut<Self> {
+        slf.0.modify_column(column.0);
+        slf
+    }
+
+    fn rename_column(
+        mut slf: PyRefMut<Self>,
+        from_name: String,
+        to_name: String,
+    ) -> PyRefMut<Self> {
+        slf.0
+            .rename_column(Alias::new(from_name), Alias::new(to_name));
+        slf
+    }
+
+    fn drop_column(mut slf: PyRefMut<Self>, name: String) -> PyRefMut<Self> {
+        slf.0.drop_column(Alias::new(name));
+        slf
+    }
+
+    fn build_sql(&self, builder: &DBEngine) -> String {
+        match builder {
+            DBEngine::Mysql => self.0.to_string(MysqlQueryBuilder),
+            DBEngine::Postgres => self.0.to_string(PostgresQueryBuilder),
+            DBEngine::Sqlite => self.0.to_string(SqliteQueryBuilder),
+        }
+    }
+}
+
+#[pyclass]
 pub struct TableDropStatement(SeaTableDropStatement);
 
 #[pymethods]
@@ -340,6 +395,11 @@ impl Table {
     #[staticmethod]
     fn create() -> TableCreateStatement {
         TableCreateStatement::new()
+    }
+
+    #[staticmethod]
+    fn alter() -> TableAlterStatement {
+        TableAlterStatement::new()
     }
 
     #[staticmethod]

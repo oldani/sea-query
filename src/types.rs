@@ -1,5 +1,8 @@
 use pyo3::{pyclass, FromPyObject};
-use sea_query::Value;
+use sea_query::{
+    index::{IndexOrder, IndexType as SeaIndexType},
+    Value,
+};
 
 #[pyclass(eq, eq_int)]
 #[derive(PartialEq)]
@@ -36,6 +39,15 @@ pub enum OrderBy {
     Desc,
 }
 
+impl Into<IndexOrder> for OrderBy {
+    fn into(self) -> IndexOrder {
+        match self {
+            OrderBy::Asc => IndexOrder::Asc,
+            OrderBy::Desc => IndexOrder::Desc,
+        }
+    }
+}
+
 #[pyclass(eq, eq_int)]
 #[derive(PartialEq, Clone)]
 pub enum NullsOrder {
@@ -66,4 +78,23 @@ pub enum LockType {
 pub enum LockBehavior {
     Nowait,
     SkipLocked,
+}
+
+#[pyclass(eq, eq_int)]
+#[derive(Clone, PartialEq)]
+pub enum IndexType {
+    BTree,
+    FullText,
+    Hash,
+    // TODO: Custom(String),
+}
+
+impl Into<SeaIndexType> for IndexType {
+    fn into(self) -> SeaIndexType {
+        match self {
+            IndexType::BTree => SeaIndexType::BTree,
+            IndexType::FullText => SeaIndexType::FullText,
+            IndexType::Hash => SeaIndexType::Hash,
+        }
+    }
 }

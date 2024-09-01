@@ -1,6 +1,7 @@
 use pyo3::prelude::*;
 
 mod expr;
+mod foreign_key;
 mod query;
 mod table;
 mod types;
@@ -29,5 +30,9 @@ fn sea_query(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<table::TableDropStatement>()?;
     m.add_class::<table::TableRenameStatement>()?;
     m.add_class::<table::TableTruncateStatement>()?;
+    m.add_class::<foreign_key::ForeignKey>()?;
+    m.add_class::<foreign_key::ForeignKeyAction>()?;
+    m.add_class::<foreign_key::ForeignKeyCreateStatement>()?;
+    m.add_class::<foreign_key::ForeignKeyDropStatement>()?;
     Ok(())
 }

@@ -1,11 +1,8 @@
 use pyo3::prelude::*;
 use sea_query::{
     expr::{Expr as SeaExpr, SimpleExpr as SeaSimpleExpr},
-    query::{
-        Condition as SeaCondition, ConditionExpression as SeaConditionExpression,
-        OnConflict as SeaOnConflict,
-    },
-    Alias,
+    query::{Condition as SeaCondition, OnConflict as SeaOnConflict},
+    Alias, IntoCondition,
 };
 
 use crate::query::SelectStatement;
@@ -190,10 +187,7 @@ impl Condition {
     }
 
     fn add(&self, expr: ConditionExpression) -> Self {
-        Self(self.0.clone().add(match expr {
-            ConditionExpression::Condition(cond) => SeaConditionExpression::Condition(cond.0),
-            ConditionExpression::SimpleExpr(expr) => SeaConditionExpression::SimpleExpr(expr.0),
-        }))
+        Self(self.0.clone().add(expr.into_condition()))
     }
 
     fn __invert__(&self) -> Self {
@@ -205,6 +199,15 @@ impl Condition {
 pub enum ConditionExpression {
     Condition(Condition),
     SimpleExpr(SimpleExpr),
+}
+
+impl IntoCondition for ConditionExpression {
+    fn into_condition(self) -> SeaCondition {
+        match self {
+            ConditionExpression::Condition(cond) => cond.0,
+            ConditionExpression::SimpleExpr(expr) => expr.0.into_condition(),
+        }
+    }
 }
 
 #[pyclass]

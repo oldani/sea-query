@@ -1,7 +1,8 @@
 use pyo3::{pyclass, FromPyObject};
 use sea_query::{
     index::{IndexOrder, IndexType as SeaIndexType},
-    Value,
+    query::{LockBehavior as SeaLockBehavior, LockType as SeaLockType, UnionType as SeaUnionType},
+    NullOrdering as SeaNullOrdering, Order as SeaOrder, Value,
 };
 
 #[pyclass(eq, eq_int)]
@@ -39,6 +40,15 @@ pub enum OrderBy {
     Desc,
 }
 
+impl Into<SeaOrder> for OrderBy {
+    fn into(self) -> SeaOrder {
+        match self {
+            OrderBy::Asc => SeaOrder::Asc,
+            OrderBy::Desc => SeaOrder::Desc,
+        }
+    }
+}
+
 impl Into<IndexOrder> for OrderBy {
     fn into(self) -> IndexOrder {
         match self {
@@ -55,6 +65,15 @@ pub enum NullsOrder {
     Last,
 }
 
+impl Into<SeaNullOrdering> for NullsOrder {
+    fn into(self) -> SeaNullOrdering {
+        match self {
+            NullsOrder::First => SeaNullOrdering::First,
+            NullsOrder::Last => SeaNullOrdering::Last,
+        }
+    }
+}
+
 #[pyclass(eq, eq_int)]
 #[derive(PartialEq, Clone)]
 pub enum UnionType {
@@ -62,6 +81,17 @@ pub enum UnionType {
     Distinct,
     Except,
     All,
+}
+
+impl Into<SeaUnionType> for UnionType {
+    fn into(self) -> SeaUnionType {
+        match self {
+            UnionType::Intersect => SeaUnionType::Intersect,
+            UnionType::Distinct => SeaUnionType::Distinct,
+            UnionType::Except => SeaUnionType::Except,
+            UnionType::All => SeaUnionType::All,
+        }
+    }
 }
 
 #[pyclass(eq, eq_int)]
@@ -73,11 +103,31 @@ pub enum LockType {
     KeyShare,
 }
 
+impl Into<SeaLockType> for LockType {
+    fn into(self) -> SeaLockType {
+        match self {
+            LockType::Update => SeaLockType::Update,
+            LockType::NoKeyUpdate => SeaLockType::NoKeyUpdate,
+            LockType::Share => SeaLockType::Share,
+            LockType::KeyShare => SeaLockType::KeyShare,
+        }
+    }
+}
+
 #[pyclass(eq, eq_int)]
 #[derive(PartialEq, Clone)]
 pub enum LockBehavior {
     Nowait,
     SkipLocked,
+}
+
+impl Into<SeaLockBehavior> for LockBehavior {
+    fn into(self) -> SeaLockBehavior {
+        match self {
+            LockBehavior::Nowait => SeaLockBehavior::Nowait,
+            LockBehavior::SkipLocked => SeaLockBehavior::SkipLocked,
+        }
+    }
 }
 
 #[pyclass(eq, eq_int)]

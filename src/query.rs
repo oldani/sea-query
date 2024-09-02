@@ -4,11 +4,9 @@ use sea_query::{
     expr::SimpleExpr as SeaSimpleExpr,
     query::{
         DeleteStatement as SeaDeleteStatement, InsertStatement as SeaInsertStatement,
-        LockBehavior as SeaLockBehavior, LockType as SeaLockType,
-        SelectStatement as SeaSelectStatement, UnionType as SeaUnionType,
-        UpdateStatement as SeaUpdateStatement,
+        SelectStatement as SeaSelectStatement, UpdateStatement as SeaUpdateStatement,
     },
-    Alias, Asterisk, NullOrdering, Order,
+    Alias, Asterisk,
 };
 
 use crate::expr::{Condition, ConditionExpression, OnConflict, SimpleExpr};
@@ -147,11 +145,7 @@ impl SelectStatement {
     }
 
     fn order_by(mut slf: PyRefMut<Self>, column: String, order: OrderBy) -> PyRefMut<Self> {
-        let order = match order {
-            OrderBy::Asc => Order::Asc,
-            OrderBy::Desc => Order::Desc,
-        };
-        slf.0.order_by(Alias::new(column), order);
+        slf.0.order_by(Alias::new(column), order.into());
         slf
     }
 
@@ -161,15 +155,8 @@ impl SelectStatement {
         order: OrderBy,
         nulls: NullsOrder,
     ) -> PyRefMut<Self> {
-        let order = match order {
-            OrderBy::Asc => Order::Asc,
-            OrderBy::Desc => Order::Desc,
-        };
-        let nulls = match nulls {
-            NullsOrder::First => NullOrdering::First,
-            NullsOrder::Last => NullOrdering::Last,
-        };
-        slf.0.order_by_with_nulls(Alias::new(column), order, nulls);
+        slf.0
+            .order_by_with_nulls(Alias::new(column), order.into(), nulls.into());
         slf
     }
 
@@ -188,14 +175,7 @@ impl SelectStatement {
         table: String,
         condition: ConditionExpression,
     ) -> PyRefMut<Self> {
-        match condition {
-            ConditionExpression::Condition(cond) => {
-                slf.0.cross_join(Alias::new(table), cond.0);
-            }
-            ConditionExpression::SimpleExpr(expr) => {
-                slf.0.cross_join(Alias::new(table), expr.0);
-            }
-        }
+        slf.0.cross_join(Alias::new(table), condition);
         slf
     }
 
@@ -204,14 +184,7 @@ impl SelectStatement {
         table: String,
         condition: ConditionExpression,
     ) -> PyRefMut<Self> {
-        match condition {
-            ConditionExpression::Condition(cond) => {
-                slf.0.left_join(Alias::new(table), cond.0);
-            }
-            ConditionExpression::SimpleExpr(expr) => {
-                slf.0.left_join(Alias::new(table), expr.0);
-            }
-        }
+        slf.0.left_join(Alias::new(table), condition);
         slf
     }
 
@@ -220,14 +193,7 @@ impl SelectStatement {
         table: String,
         condition: ConditionExpression,
     ) -> PyRefMut<Self> {
-        match condition {
-            ConditionExpression::Condition(cond) => {
-                slf.0.right_join(Alias::new(table), cond.0);
-            }
-            ConditionExpression::SimpleExpr(expr) => {
-                slf.0.right_join(Alias::new(table), expr.0);
-            }
-        }
+        slf.0.right_join(Alias::new(table), condition);
         slf
     }
 
@@ -236,14 +202,7 @@ impl SelectStatement {
         table: String,
         condition: ConditionExpression,
     ) -> PyRefMut<Self> {
-        match condition {
-            ConditionExpression::Condition(cond) => {
-                slf.0.inner_join(Alias::new(table), cond.0);
-            }
-            ConditionExpression::SimpleExpr(expr) => {
-                slf.0.inner_join(Alias::new(table), expr.0);
-            }
-        }
+        slf.0.inner_join(Alias::new(table), condition);
         slf
     }
 
@@ -252,14 +211,7 @@ impl SelectStatement {
         table: String,
         condition: ConditionExpression,
     ) -> PyRefMut<Self> {
-        match condition {
-            ConditionExpression::Condition(cond) => {
-                slf.0.full_outer_join(Alias::new(table), cond.0);
-            }
-            ConditionExpression::SimpleExpr(expr) => {
-                slf.0.full_outer_join(Alias::new(table), expr.0);
-            }
-        }
+        slf.0.full_outer_join(Alias::new(table), condition);
         slf
     }
 
@@ -268,24 +220,12 @@ impl SelectStatement {
         query: SelectStatement,
         union_type: UnionType,
     ) -> PyRefMut<Self> {
-        let union_type = match union_type {
-            UnionType::Intersect => SeaUnionType::Intersect,
-            UnionType::Distinct => SeaUnionType::Distinct,
-            UnionType::Except => SeaUnionType::Except,
-            UnionType::All => SeaUnionType::All,
-        };
-        slf.0.union(union_type, query.0);
+        slf.0.union(union_type.into(), query.0);
         slf
     }
 
     fn lock(mut slf: PyRefMut<Self>, lock_type: LockType) -> PyRefMut<Self> {
-        let lock_type = match lock_type {
-            LockType::Update => SeaLockType::Update,
-            LockType::NoKeyUpdate => SeaLockType::NoKeyUpdate,
-            LockType::Share => SeaLockType::Share,
-            LockType::KeyShare => SeaLockType::KeyShare,
-        };
-        slf.0.lock(lock_type);
+        slf.0.lock(lock_type.into());
         slf
     }
 
@@ -294,14 +234,8 @@ impl SelectStatement {
         lock_type: LockType,
         tables: Vec<String>,
     ) -> PyRefMut<Self> {
-        let lock_type = match lock_type {
-            LockType::Update => SeaLockType::Update,
-            LockType::NoKeyUpdate => SeaLockType::NoKeyUpdate,
-            LockType::Share => SeaLockType::Share,
-            LockType::KeyShare => SeaLockType::KeyShare,
-        };
         slf.0.lock_with_tables(
-            lock_type,
+            lock_type.into(),
             tables.iter().map(Alias::new).collect::<Vec<Alias>>(),
         );
         slf
@@ -312,17 +246,7 @@ impl SelectStatement {
         lock_type: LockType,
         behavior: LockBehavior,
     ) -> PyRefMut<Self> {
-        let lock_type = match lock_type {
-            LockType::Update => SeaLockType::Update,
-            LockType::NoKeyUpdate => SeaLockType::NoKeyUpdate,
-            LockType::Share => SeaLockType::Share,
-            LockType::KeyShare => SeaLockType::KeyShare,
-        };
-        let behavior = match behavior {
-            LockBehavior::Nowait => SeaLockBehavior::Nowait,
-            LockBehavior::SkipLocked => SeaLockBehavior::SkipLocked,
-        };
-        slf.0.lock_with_behavior(lock_type, behavior);
+        slf.0.lock_with_behavior(lock_type.into(), behavior.into());
         slf
     }
 
@@ -332,20 +256,10 @@ impl SelectStatement {
         tables: Vec<String>,
         behavior: LockBehavior,
     ) -> PyRefMut<Self> {
-        let lock_type = match lock_type {
-            LockType::Update => SeaLockType::Update,
-            LockType::NoKeyUpdate => SeaLockType::NoKeyUpdate,
-            LockType::Share => SeaLockType::Share,
-            LockType::KeyShare => SeaLockType::KeyShare,
-        };
-        let behavior = match behavior {
-            LockBehavior::Nowait => SeaLockBehavior::Nowait,
-            LockBehavior::SkipLocked => SeaLockBehavior::SkipLocked,
-        };
         slf.0.lock_with_tables_behavior(
-            lock_type,
+            lock_type.into(),
             tables.iter().map(Alias::new).collect::<Vec<Alias>>(),
-            behavior,
+            behavior.into(),
         );
         slf
     }

@@ -18,10 +18,7 @@ classifiers = [
 
 [tool.maturin]
 features = ["pyo3/extension-module"]
+exclude = ["tests/*.py"]
 
 [tool.uv]
-dev-dependencies = [
-    "pytest>=8.3.2",
-    "ruff>=0.6.2",
-    "mypy>=1.11.2",
-]
+dev-dependencies = ["pytest>=8.3.2", "ruff>=0.6.2", "mypy>=1.11.2"]

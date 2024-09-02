@@ -20,9 +20,9 @@ pub enum ForeignKeyAction {
     SetDefault,
 }
 
-impl Into<SeaForeignKeyAction> for ForeignKeyAction {
-    fn into(self) -> SeaForeignKeyAction {
-        match self {
+impl From<ForeignKeyAction> for SeaForeignKeyAction {
+    fn from(action: ForeignKeyAction) -> Self {
+        match action {
             ForeignKeyAction::Restrict => SeaForeignKeyAction::Restrict,
             ForeignKeyAction::Cascade => SeaForeignKeyAction::Cascade,
             ForeignKeyAction::SetNull => SeaForeignKeyAction::SetNull,

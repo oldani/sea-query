@@ -40,18 +40,18 @@ pub enum OrderBy {
     Desc,
 }
 
-impl Into<SeaOrder> for OrderBy {
-    fn into(self) -> SeaOrder {
-        match self {
+impl From<OrderBy> for SeaOrder {
+    fn from(order: OrderBy) -> Self {
+        match order {
             OrderBy::Asc => SeaOrder::Asc,
             OrderBy::Desc => SeaOrder::Desc,
         }
     }
 }
 
-impl Into<IndexOrder> for OrderBy {
-    fn into(self) -> IndexOrder {
-        match self {
+impl From<OrderBy> for IndexOrder {
+    fn from(order: OrderBy) -> Self {
+        match order {
             OrderBy::Asc => IndexOrder::Asc,
             OrderBy::Desc => IndexOrder::Desc,
         }
@@ -65,9 +65,9 @@ pub enum NullsOrder {
     Last,
 }
 
-impl Into<SeaNullOrdering> for NullsOrder {
-    fn into(self) -> SeaNullOrdering {
-        match self {
+impl From<NullsOrder> for SeaNullOrdering {
+    fn from(order: NullsOrder) -> Self {
+        match order {
             NullsOrder::First => SeaNullOrdering::First,
             NullsOrder::Last => SeaNullOrdering::Last,
         }
@@ -83,9 +83,9 @@ pub enum UnionType {
     All,
 }
 
-impl Into<SeaUnionType> for UnionType {
-    fn into(self) -> SeaUnionType {
-        match self {
+impl From<UnionType> for SeaUnionType {
+    fn from(union: UnionType) -> Self {
+        match union {
             UnionType::Intersect => SeaUnionType::Intersect,
             UnionType::Distinct => SeaUnionType::Distinct,
             UnionType::Except => SeaUnionType::Except,
@@ -103,9 +103,9 @@ pub enum LockType {
     KeyShare,
 }
 
-impl Into<SeaLockType> for LockType {
-    fn into(self) -> SeaLockType {
-        match self {
+impl From<LockType> for SeaLockType {
+    fn from(lock: LockType) -> Self {
+        match lock {
             LockType::Update => SeaLockType::Update,
             LockType::NoKeyUpdate => SeaLockType::NoKeyUpdate,
             LockType::Share => SeaLockType::Share,
@@ -121,9 +121,9 @@ pub enum LockBehavior {
     SkipLocked,
 }
 
-impl Into<SeaLockBehavior> for LockBehavior {
-    fn into(self) -> SeaLockBehavior {
-        match self {
+impl From<LockBehavior> for SeaLockBehavior {
+    fn from(behavior: LockBehavior) -> Self {
+        match behavior {
             LockBehavior::Nowait => SeaLockBehavior::Nowait,
             LockBehavior::SkipLocked => SeaLockBehavior::SkipLocked,
         }
@@ -139,9 +139,9 @@ pub enum IndexType {
     // TODO: Custom(String),
 }
 
-impl Into<SeaIndexType> for IndexType {
-    fn into(self) -> SeaIndexType {
-        match self {
+impl From<IndexType> for SeaIndexType {
+    fn from(index: IndexType) -> Self {
+        match index {
             IndexType::BTree => SeaIndexType::BTree,
             IndexType::FullText => SeaIndexType::FullText,
             IndexType::Hash => SeaIndexType::Hash,

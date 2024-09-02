@@ -47,6 +47,7 @@ impl Expr {
         Self(SeaExpr::val(&value))
     }
 
+    #[allow(clippy::self_named_constructors)]
     #[staticmethod]
     fn expr(expr: Expr) -> Self {
         Self(SeaExpr::expr(expr.0.clone()))

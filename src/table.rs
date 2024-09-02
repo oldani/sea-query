@@ -13,6 +13,8 @@ use sea_query::{
 
 use crate::{
     expr::{Expr, SimpleExpr},
+    foreign_key::ForeignKeyCreateStatement,
+    index::IndexCreateStatement,
     types::DBEngine,
 };
 
@@ -237,6 +239,25 @@ impl TableCreateStatement {
         slf
     }
 
+    fn index(mut slf: PyRefMut<Self>, mut index: IndexCreateStatement) -> PyRefMut<Self> {
+        // TODO: Mysql only
+        slf.0.index(&mut index.0);
+        slf
+    }
+
+    fn primary_key(mut slf: PyRefMut<Self>, mut index: IndexCreateStatement) -> PyRefMut<Self> {
+        slf.0.index(&mut index.0);
+        slf
+    }
+
+    fn foreign_key(
+        mut slf: PyRefMut<Self>,
+        mut foreign_key: ForeignKeyCreateStatement,
+    ) -> PyRefMut<Self> {
+        slf.0.foreign_key(&mut foreign_key.0);
+        slf
+    }
+
     fn comment(mut slf: PyRefMut<Self>, comment: String) -> PyRefMut<Self> {
         slf.0.comment(comment);
         slf
@@ -293,6 +314,19 @@ impl TableAlterStatement {
 
     fn drop_column(mut slf: PyRefMut<Self>, name: String) -> PyRefMut<Self> {
         slf.0.drop_column(Alias::new(name));
+        slf
+    }
+
+    fn add_foreign_key(
+        mut slf: PyRefMut<Self>,
+        foreign_key: ForeignKeyCreateStatement,
+    ) -> PyRefMut<Self> {
+        slf.0.add_foreign_key(foreign_key.0.get_foreign_key());
+        slf
+    }
+
+    fn drop_foreign_key(mut slf: PyRefMut<Self>, name: String) -> PyRefMut<Self> {
+        slf.0.drop_foreign_key(Alias::new(name));
         slf
     }
 

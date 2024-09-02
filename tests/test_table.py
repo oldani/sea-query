@@ -1,4 +1,12 @@
-from sea_query import Column, DBEngine, Expr, Table
+from sea_query import (
+    Column,
+    DBEngine,
+    Expr,
+    ForeignKey,
+    ForeignKeyAction,
+    IndexCreateStatement,
+    Table,
+)
 
 from tests.utils import assert_query
 
@@ -83,6 +91,74 @@ def test_create_table_add_check_constraint():
     )
 
 
+# TODO: Mark mysql only
+def test_create_table_add_index():
+    statement = (
+        Table.create()
+        .name("users")
+        .column(Column("id").big_integer().primary_key().auto_increment())
+        .column(Column("email").string().string_len(64))
+        .index(IndexCreateStatement().column("email"))
+    )
+
+    assert statement.build_sql(DBEngine.Mysql) == (
+        "CREATE TABLE `users` ( `id` bigint PRIMARY KEY AUTO_INCREMENT, `email` varchar(64), KEY (`email`) )"
+    )
+
+
+def test_create_table_add_primary_key():
+    statement = (
+        Table.create()
+        .name("users")
+        .column(Column("id").big_integer().auto_increment())
+        .column(Column("email").string().string_len(64))
+        .primary_key(IndexCreateStatement().column("id").column("email").primary())
+    )
+
+    assert (
+        statement.build_sql(DBEngine.Postgres)
+        == 'CREATE TABLE "users" ( "id" bigserial, "email" varchar(64), PRIMARY KEY ("id", "email") )'
+    )
+    assert (
+        statement.build_sql(DBEngine.Sqlite)
+        == 'CREATE TABLE "users" ( "id" integer AUTOINCREMENT, "email" varchar(64), PRIMARY KEY ("id", "email") )'
+    )
+
+    assert statement.build_sql(DBEngine.Mysql) == (
+        "CREATE TABLE `users` ( `id` bigint AUTO_INCREMENT, `email` varchar(64), PRIMARY KEY (`id`, `email`) )"
+    )
+
+
+def test_create_table_add_foreign_key():
+    statement = (
+        Table.create()
+        .name("profiles")
+        .column(Column("id").big_integer().auto_increment().primary_key())
+        .column(Column("user_id").big_integer())
+        .foreign_key(
+            ForeignKey.create()
+            .name("fk_profile_user_id")
+            .from_table("profiles")
+            .from_column("user_id")
+            .to_table("users")
+            .to_column("id")
+        )
+    )
+
+    assert (
+        statement.build_sql(DBEngine.Postgres)
+        == 'CREATE TABLE "profiles" ( "id" bigserial PRIMARY KEY, "user_id" bigint, CONSTRAINT "fk_profile_user_id" FOREIGN KEY ("user_id") REFERENCES "users" ("id") )'
+    )
+    assert (
+        statement.build_sql(DBEngine.Sqlite)
+        == 'CREATE TABLE "profiles" ( "id" integer PRIMARY KEY AUTOINCREMENT, "user_id" bigint, FOREIGN KEY ("user_id") REFERENCES "users" ("id") )'
+    )
+    assert (
+        statement.build_sql(DBEngine.Mysql)
+        == "CREATE TABLE `profiles` ( `id` bigint AUTO_INCREMENT PRIMARY KEY, `user_id` bigint, CONSTRAINT `fk_profile_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) )"
+    )
+
+
 def test_alter_table_add_column():
     statement = (
         Table.alter()
@@ -152,6 +228,43 @@ def test_alter_table_rename_column():
 def test_alter_table_drop_column():
     statement = Table.alter().table("table").drop_column("column")
     assert_query(statement, 'ALTER TABLE "table" DROP COLUMN "column"')
+
+
+def test_alter_table_add_foreign_key():
+    statement = (
+        Table.alter()
+        .table("users")
+        .add_foreign_key(
+            ForeignKey.create()
+            .name("fk_users_id")
+            .from_table("users")
+            .from_column("id")
+            .to_table("profiles")
+            .to_column("user_id")
+            .on_delete(ForeignKeyAction.Cascade)
+        )
+    )
+
+    assert statement.build_sql(DBEngine.Postgres) == (
+        'ALTER TABLE "users" ADD CONSTRAINT "fk_users_id" FOREIGN KEY ("id") REFERENCES "profiles" ("user_id") ON DELETE CASCADE'
+    )
+
+    assert statement.build_sql(DBEngine.Mysql) == (
+        "ALTER TABLE `users` ADD CONSTRAINT `fk_users_id` FOREIGN KEY (`id`) REFERENCES `profiles` (`user_id`) ON DELETE CASCADE"
+    )
+
+
+def test_alter_table_drop_foreign_key():
+    statement = Table.alter().table("users").drop_foreign_key("fk_users_id")
+
+    assert (
+        statement.build_sql(DBEngine.Postgres)
+        == 'ALTER TABLE "users" DROP CONSTRAINT "fk_users_id"'
+    )
+    assert (
+        statement.build_sql(DBEngine.Mysql)
+        == "ALTER TABLE `users` DROP FOREIGN KEY `fk_users_id`"
+    )
 
 
 def test_drop_table():

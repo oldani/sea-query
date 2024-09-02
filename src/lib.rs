@@ -37,5 +37,6 @@ fn sea_query(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<foreign_key::ForeignKeyCreateStatement>()?;
     m.add_class::<foreign_key::ForeignKeyDropStatement>()?;
     m.add_class::<index::Index>()?;
+    m.add_class::<index::IndexCreateStatement>()?;
     Ok(())
 }

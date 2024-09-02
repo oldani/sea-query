@@ -33,6 +33,7 @@ impl Into<SeaForeignKeyAction> for ForeignKeyAction {
 }
 
 #[pyclass]
+#[derive(Clone)]
 pub struct ForeignKeyCreateStatement(pub SeaForeignKeyCreateStatement);
 
 #[pymethods]

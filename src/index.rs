@@ -11,6 +11,7 @@ use sea_query::{
 use crate::types::{DBEngine, IndexType, OrderBy};
 
 #[pyclass]
+#[derive(Clone)]
 pub struct IndexCreateStatement(pub(crate) SeaIndexCreateStatement);
 
 #[pymethods]

@@ -9,7 +9,7 @@ def assert_query(
     query: Any,
     expected: str,
     mysql_expected: Optional[str] = None,
-):
+) -> None:
     assert (
         query.build_sql(DBEngine.Postgres) == expected
     ), f"{query.build_sql(DBEngine.Postgres)} != {expected}"

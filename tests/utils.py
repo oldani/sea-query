@@ -19,4 +19,4 @@ def assert_query(
     assert (
         query.build_sql(DBEngine.Mysql)
         == (mysql_expected or expected.replace('"', "`"))
-    ), f"{query.build_sql(DBEngine.Mysql)} != {mysql_expected or expected.replace('\"', '`')}"
+    ), f"{query.build_sql(DBEngine.Mysql)} != {mysql_expected or expected.replace('"', '`')}"

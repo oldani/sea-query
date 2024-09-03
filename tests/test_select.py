@@ -328,6 +328,43 @@ def test_select_expr_as():
     assert_query(query, 'SELECT COUNT("column1") AS "count" FROM "table"')
 
 
+def test_select_case_statement():
+    query = (
+        Query.select()
+        .expr_as(
+            Expr.case()
+            .when(Expr.column("column1").eq(1), Expr.value(1))
+            .else_(Expr.value(0)),
+            alias="case_column",
+        )
+        .from_table("table")
+    )
+
+    assert_query(
+        query,
+        'SELECT (CASE WHEN ("column1" = 1) THEN 1 ELSE 0 END) AS "case_column" FROM "table"',
+    )
+
+
+def test_select_case_statement_multiple_when():
+    query = (
+        Query.select()
+        .expr_as(
+            Expr.case()
+            .when(Expr.column("column1").eq(1), Expr.value(1))
+            .when(Expr.column("column1").eq(2), Expr.value(2))
+            .else_(Expr.value(0)),
+            alias="case_column",
+        )
+        .from_table("table")
+    )
+
+    assert_query(
+        query,
+        'SELECT (CASE WHEN ("column1" = 1) THEN 1 WHEN ("column1" = 2) THEN 2 ELSE 0 END) AS "case_column" FROM "table"',
+    )
+
+
 def test_cross_join():
     query = (
         Query.select()

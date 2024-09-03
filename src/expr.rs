@@ -1,7 +1,9 @@
 use pyo3::prelude::*;
 use sea_query::{
     expr::{Expr as SeaExpr, SimpleExpr as SeaSimpleExpr},
-    query::{Condition as SeaCondition, OnConflict as SeaOnConflict},
+    query::{
+        CaseStatement as SeaCaseStatement, Condition as SeaCondition, OnConflict as SeaOnConflict,
+    },
     Alias, IntoCondition,
 };
 
@@ -169,6 +171,11 @@ impl Expr {
     fn exists(query: SelectStatement) -> SimpleExpr {
         SimpleExpr(SeaExpr::exists(query.0))
     }
+
+    #[staticmethod]
+    fn case() -> CaseStatement {
+        CaseStatement::new()
+    }
 }
 
 #[pyclass]
@@ -235,4 +242,42 @@ impl OnConflict {
     }
 
     // TODO: Implement missing methods
+}
+
+#[pyclass]
+#[derive(Clone)]
+pub struct CaseStatement(pub(crate) SeaCaseStatement);
+
+#[pymethods]
+impl CaseStatement {
+    #[staticmethod]
+    fn new() -> Self {
+        Self(SeaCaseStatement::new())
+    }
+
+    fn when(&self, condition: ConditionExpression, then: Expr) -> Self {
+        Self(self.0.clone().case(condition.into_condition(), then.0))
+    }
+
+    fn else_(&self, expr: Expr) -> Self {
+        Self(self.0.clone().finally(expr.0))
+    }
+}
+
+// PyO3 doesn't support generic types in methods, so we have to take a different approach
+#[derive(FromPyObject)]
+pub(crate) enum IntoSimpleExpr {
+    SimpleExpr(SimpleExpr),
+    Expr(Expr),
+    CaseStatement(CaseStatement),
+}
+
+impl From<IntoSimpleExpr> for SeaSimpleExpr {
+    fn from(expr: IntoSimpleExpr) -> Self {
+        match expr {
+            IntoSimpleExpr::SimpleExpr(expr) => expr.0,
+            IntoSimpleExpr::Expr(expr) => expr.0.into(),
+            IntoSimpleExpr::CaseStatement(case) => case.0.into(),
+        }
+    }
 }

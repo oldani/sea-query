@@ -9,7 +9,7 @@ use sea_query::{
     Alias, Asterisk,
 };
 
-use crate::expr::{Condition, ConditionExpression, OnConflict, SimpleExpr};
+use crate::expr::{Condition, ConditionExpression, IntoSimpleExpr, OnConflict, SimpleExpr};
 use crate::types::{DBEngine, LockBehavior, LockType, NullsOrder, OrderBy, PyValue, UnionType};
 
 #[pyclass]
@@ -104,8 +104,8 @@ impl SelectStatement {
         slf
     }
 
-    fn expr_as(mut slf: PyRefMut<Self>, expr: SimpleExpr, alias: String) -> PyRefMut<Self> {
-        slf.0.expr_as(expr.0, Alias::new(alias));
+    fn expr_as(mut slf: PyRefMut<Self>, expr: IntoSimpleExpr, alias: String) -> PyRefMut<Self> {
+        slf.0.expr_as(expr, Alias::new(alias));
         slf
     }
 

@@ -15,5 +15,5 @@ def assert_query(
             expected = mysql_expected or expected.replace('"', "`")
 
         assert (
-            query.build_sql(engine) == expected
-        ), f"{query.build_sql(engine)} != {expected}"
+            query.to_string(engine) == expected
+        ), f"{query.to_string(engine)} != {expected}"

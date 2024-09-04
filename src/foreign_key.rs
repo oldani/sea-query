@@ -78,7 +78,7 @@ impl ForeignKeyCreateStatement {
         slf
     }
 
-    fn build_sql(&self, engine: &DBEngine) -> String {
+    fn to_string(&self, engine: &DBEngine) -> String {
         match engine {
             DBEngine::Mysql => self.0.to_string(MysqlQueryBuilder),
             DBEngine::Postgres => self.0.to_string(PostgresQueryBuilder),
@@ -107,7 +107,7 @@ impl ForeignKeyDropStatement {
         slf
     }
 
-    fn build_sql(&self, engine: &DBEngine) -> String {
+    fn to_string(&self, engine: &DBEngine) -> String {
         match engine {
             DBEngine::Mysql => self.0.to_string(MysqlQueryBuilder),
             DBEngine::Postgres => self.0.to_string(PostgresQueryBuilder),

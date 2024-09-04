@@ -93,7 +93,7 @@ def test_create_index_nulls_not_distinct():
     )
 
     assert (
-        index.build_sql(DBEngine.Postgres)
+        index.to_string(DBEngine.Postgres)
         == 'CREATE INDEX "index_name" ON "table" ("col1") NULLS NOT DISTINCT'
     )
 
@@ -108,11 +108,11 @@ def test_create_btree_index():
     )
 
     assert (
-        index.build_sql(DBEngine.Postgres)
+        index.to_string(DBEngine.Postgres)
         == 'CREATE INDEX "index_name" ON "table" USING BTREE ("col1")'
     )
     assert (
-        index.build_sql(DBEngine.Mysql)
+        index.to_string(DBEngine.Mysql)
         == "CREATE INDEX `index_name` ON `table` (`col1`) USING BTREE"
     )
     # TODO: not supported by SQLite
@@ -128,11 +128,11 @@ def test_create_gin_index():
     )
 
     assert (
-        index.build_sql(DBEngine.Postgres)
+        index.to_string(DBEngine.Postgres)
         == 'CREATE INDEX "index_name" ON "table" USING GIN ("col1")'
     )
     assert (
-        index.build_sql(DBEngine.Mysql)
+        index.to_string(DBEngine.Mysql)
         == "CREATE FULLTEXT INDEX `index_name` ON `table` (`col1`)"
     )
 
@@ -147,11 +147,11 @@ def test_create_hash_index():
     )
 
     assert (
-        index.build_sql(DBEngine.Postgres)
+        index.to_string(DBEngine.Postgres)
         == 'CREATE INDEX "index_name" ON "table" USING HASH ("col1")'
     )
     assert (
-        index.build_sql(DBEngine.Mysql)
+        index.to_string(DBEngine.Mysql)
         == "CREATE INDEX `index_name` ON `table` (`col1`) USING HASH"
     )
 
@@ -168,6 +168,6 @@ def test_drop_index():
 def test_drop_index_if_exists():
     index = Index.drop().name("index_name").table("table").if_exists()
 
-    assert index.build_sql(DBEngine.Postgres) == 'DROP INDEX IF EXISTS "index_name"'
-    assert index.build_sql(DBEngine.Sqlite) == 'DROP INDEX IF EXISTS "index_name"'
+    assert index.to_string(DBEngine.Postgres) == 'DROP INDEX IF EXISTS "index_name"'
+    assert index.to_string(DBEngine.Sqlite) == 'DROP INDEX IF EXISTS "index_name"'
     # TODO: not supported by MySQL

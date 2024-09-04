@@ -35,15 +35,15 @@ def test_text_col():
 def test_tiny_integer_col():
     statement = Table.create().name("users").column(Column("age").tiny_integer())
 
-    assert statement.build_sql(DBEngine.Postgres) == (
+    assert statement.to_string(DBEngine.Postgres) == (
         'CREATE TABLE "users" ( "age" smallint )'
     )
 
-    assert statement.build_sql(DBEngine.Sqlite) == (
+    assert statement.to_string(DBEngine.Sqlite) == (
         'CREATE TABLE "users" ( "age" tinyint )'
     )
 
-    assert statement.build_sql(DBEngine.Mysql) == (
+    assert statement.to_string(DBEngine.Mysql) == (
         "CREATE TABLE `users` ( `age` tinyint )"
     )
 
@@ -70,15 +70,15 @@ def test_big_integer_col():
 def test_tiny_unsigned_col():
     statement = Table.create().name("users").column(Column("age").tiny_unsigned())
 
-    assert statement.build_sql(DBEngine.Postgres) == (
+    assert statement.to_string(DBEngine.Postgres) == (
         'CREATE TABLE "users" ( "age" smallint )'
     )
 
-    assert statement.build_sql(DBEngine.Sqlite) == (
+    assert statement.to_string(DBEngine.Sqlite) == (
         'CREATE TABLE "users" ( "age" tinyint )'
     )
 
-    assert statement.build_sql(DBEngine.Mysql) == (
+    assert statement.to_string(DBEngine.Mysql) == (
         "CREATE TABLE `users` ( `age` tinyint UNSIGNED )"
     )
 
@@ -112,52 +112,52 @@ def test_big_unsigned_col():
 
 def test_float_col():
     statement = Table.create().name("users").column(Column("amount").float())
-    assert statement.build_sql(DBEngine.Postgres) == (
+    assert statement.to_string(DBEngine.Postgres) == (
         'CREATE TABLE "users" ( "amount" real )'
     )
-    assert statement.build_sql(DBEngine.Sqlite) == (
+    assert statement.to_string(DBEngine.Sqlite) == (
         'CREATE TABLE "users" ( "amount" float )'
     )
-    assert statement.build_sql(DBEngine.Mysql) == (
+    assert statement.to_string(DBEngine.Mysql) == (
         "CREATE TABLE `users` ( `amount` float )"
     )
 
 
 def test_double_col():
     statement = Table.create().name("users").column(Column("amount").double())
-    assert statement.build_sql(DBEngine.Postgres) == (
+    assert statement.to_string(DBEngine.Postgres) == (
         'CREATE TABLE "users" ( "amount" double precision )'
     )
-    assert statement.build_sql(DBEngine.Sqlite) == (
+    assert statement.to_string(DBEngine.Sqlite) == (
         'CREATE TABLE "users" ( "amount" double )'
     )
-    assert statement.build_sql(DBEngine.Mysql) == (
+    assert statement.to_string(DBEngine.Mysql) == (
         "CREATE TABLE `users` ( `amount` double )"
     )
 
 
 def test_decimal_col():
     statement = Table.create().name("users").column(Column("amount").decimal())
-    assert statement.build_sql(DBEngine.Postgres) == (
+    assert statement.to_string(DBEngine.Postgres) == (
         'CREATE TABLE "users" ( "amount" decimal )'
     )
-    assert statement.build_sql(DBEngine.Sqlite) == (
+    assert statement.to_string(DBEngine.Sqlite) == (
         'CREATE TABLE "users" ( "amount" real )'
     )
-    assert statement.build_sql(DBEngine.Mysql) == (
+    assert statement.to_string(DBEngine.Mysql) == (
         "CREATE TABLE `users` ( `amount` decimal )"
     )
 
 
 def test_decimal_col_len():
     statement = Table.create().name("users").column(Column("amount").decimal_len(10, 2))
-    assert statement.build_sql(DBEngine.Postgres) == (
+    assert statement.to_string(DBEngine.Postgres) == (
         'CREATE TABLE "users" ( "amount" decimal(10, 2) )'
     )
-    assert statement.build_sql(DBEngine.Sqlite) == (
+    assert statement.to_string(DBEngine.Sqlite) == (
         'CREATE TABLE "users" ( "amount" real(10, 2) )'
     )
-    assert statement.build_sql(DBEngine.Mysql) == (
+    assert statement.to_string(DBEngine.Mysql) == (
         "CREATE TABLE `users` ( `amount` decimal(10, 2) )"
     )
 
@@ -166,15 +166,15 @@ def test_datetime_col():
     statement = Table.create().name("users").column(Column("created_at").datetime())
 
     assert (
-        statement.build_sql(DBEngine.Postgres)
+        statement.to_string(DBEngine.Postgres)
         == 'CREATE TABLE "users" ( "created_at" timestamp without time zone )'
     )
     assert (
-        statement.build_sql(DBEngine.Sqlite)
+        statement.to_string(DBEngine.Sqlite)
         == 'CREATE TABLE "users" ( "created_at" datetime_text )'
     )
     assert (
-        statement.build_sql(DBEngine.Mysql)
+        statement.to_string(DBEngine.Mysql)
         == "CREATE TABLE `users` ( `created_at` datetime )"
     )
 
@@ -183,15 +183,15 @@ def test_timestamp_col():
     statement = Table.create().name("users").column(Column("created_at").timestamp())
 
     assert (
-        statement.build_sql(DBEngine.Postgres)
+        statement.to_string(DBEngine.Postgres)
         == 'CREATE TABLE "users" ( "created_at" timestamp )'
     )
     assert (
-        statement.build_sql(DBEngine.Sqlite)
+        statement.to_string(DBEngine.Sqlite)
         == 'CREATE TABLE "users" ( "created_at" timestamp_text )'
     )
     assert (
-        statement.build_sql(DBEngine.Mysql)
+        statement.to_string(DBEngine.Mysql)
         == "CREATE TABLE `users` ( `created_at` timestamp )"
     )
 
@@ -202,15 +202,15 @@ def test_timestamp_col_with_tz():
     )
 
     assert (
-        statement.build_sql(DBEngine.Postgres)
+        statement.to_string(DBEngine.Postgres)
         == 'CREATE TABLE "users" ( "created_at" timestamp with time zone )'
     )
     assert (
-        statement.build_sql(DBEngine.Sqlite)
+        statement.to_string(DBEngine.Sqlite)
         == 'CREATE TABLE "users" ( "created_at" timestamp_with_timezone_text )'
     )
     assert (
-        statement.build_sql(DBEngine.Mysql)
+        statement.to_string(DBEngine.Mysql)
         == "CREATE TABLE `users` ( `created_at` timestamp )"
     )
 
@@ -218,13 +218,13 @@ def test_timestamp_col_with_tz():
 def test_date_col():
     statement = Table.create().name("users").column(Column("dob").date())
 
-    assert statement.build_sql(DBEngine.Postgres) == (
+    assert statement.to_string(DBEngine.Postgres) == (
         'CREATE TABLE "users" ( "dob" date )'
     )
-    assert statement.build_sql(DBEngine.Sqlite) == (
+    assert statement.to_string(DBEngine.Sqlite) == (
         'CREATE TABLE "users" ( "dob" date_text )'
     )
-    assert statement.build_sql(DBEngine.Mysql) == (
+    assert statement.to_string(DBEngine.Mysql) == (
         "CREATE TABLE `users` ( `dob` date )"
     )
 
@@ -232,13 +232,13 @@ def test_date_col():
 def test_time_col():
     statement = Table.create().name("users").column(Column("time").time())
 
-    assert statement.build_sql(DBEngine.Postgres) == (
+    assert statement.to_string(DBEngine.Postgres) == (
         'CREATE TABLE "users" ( "time" time )'
     )
-    assert statement.build_sql(DBEngine.Sqlite) == (
+    assert statement.to_string(DBEngine.Sqlite) == (
         'CREATE TABLE "users" ( "time" time_text )'
     )
-    assert statement.build_sql(DBEngine.Mysql) == (
+    assert statement.to_string(DBEngine.Mysql) == (
         "CREATE TABLE `users` ( `time` time )"
     )
 
@@ -246,13 +246,13 @@ def test_time_col():
 def test_blob_col():
     statement = Table.create().name("users").column(Column("data").blob())
 
-    assert statement.build_sql(DBEngine.Postgres) == (
+    assert statement.to_string(DBEngine.Postgres) == (
         'CREATE TABLE "users" ( "data" bytea )'
     )
-    assert statement.build_sql(DBEngine.Sqlite) == (
+    assert statement.to_string(DBEngine.Sqlite) == (
         'CREATE TABLE "users" ( "data" blob )'
     )
-    assert statement.build_sql(DBEngine.Mysql) == (
+    assert statement.to_string(DBEngine.Mysql) == (
         "CREATE TABLE `users` ( `data` blob )"
     )
 
@@ -260,13 +260,13 @@ def test_blob_col():
 def test_boolean_col():
     statement = Table.create().name("users").column(Column("active").boolean())
 
-    assert statement.build_sql(DBEngine.Postgres) == (
+    assert statement.to_string(DBEngine.Postgres) == (
         'CREATE TABLE "users" ( "active" bool )'
     )
-    assert statement.build_sql(DBEngine.Sqlite) == (
+    assert statement.to_string(DBEngine.Sqlite) == (
         'CREATE TABLE "users" ( "active" boolean )'
     )
-    assert statement.build_sql(DBEngine.Mysql) == (
+    assert statement.to_string(DBEngine.Mysql) == (
         "CREATE TABLE `users` ( `active` bool )"
     )
 
@@ -274,13 +274,13 @@ def test_boolean_col():
 def test_json_col():
     statement = Table.create().name("users").column(Column("data").json())
 
-    assert statement.build_sql(DBEngine.Postgres) == (
+    assert statement.to_string(DBEngine.Postgres) == (
         'CREATE TABLE "users" ( "data" json )'
     )
-    assert statement.build_sql(DBEngine.Sqlite) == (
+    assert statement.to_string(DBEngine.Sqlite) == (
         'CREATE TABLE "users" ( "data" json_text )'
     )
-    assert statement.build_sql(DBEngine.Mysql) == (
+    assert statement.to_string(DBEngine.Mysql) == (
         "CREATE TABLE `users` ( `data` json )"
     )
 
@@ -288,13 +288,13 @@ def test_json_col():
 def test_jsonb_col():
     statement = Table.create().name("users").column(Column("data").jsonb())
 
-    assert statement.build_sql(DBEngine.Postgres) == (
+    assert statement.to_string(DBEngine.Postgres) == (
         'CREATE TABLE "users" ( "data" jsonb )'
     )
-    assert statement.build_sql(DBEngine.Sqlite) == (
+    assert statement.to_string(DBEngine.Sqlite) == (
         'CREATE TABLE "users" ( "data" jsonb_text )'
     )
-    assert statement.build_sql(DBEngine.Mysql) == (
+    assert statement.to_string(DBEngine.Mysql) == (
         "CREATE TABLE `users` ( `data` json )"
     )
 
@@ -302,13 +302,13 @@ def test_jsonb_col():
 def test_uuid_col():
     statement = Table.create().name("users").column(Column("id").uuid())
 
-    assert statement.build_sql(DBEngine.Postgres) == (
+    assert statement.to_string(DBEngine.Postgres) == (
         'CREATE TABLE "users" ( "id" uuid )'
     )
-    assert statement.build_sql(DBEngine.Sqlite) == (
+    assert statement.to_string(DBEngine.Sqlite) == (
         'CREATE TABLE "users" ( "id" uuid_text )'
     )
-    assert statement.build_sql(DBEngine.Mysql) == (
+    assert statement.to_string(DBEngine.Mysql) == (
         "CREATE TABLE `users` ( `id` binary(16) )"
     )
 
@@ -332,7 +332,7 @@ def test_column_comment():
         Table.create().name("users").column(Column("id").uuid().comment("User uuid"))
     )
 
-    assert statement.build_sql(DBEngine.Mysql) == (
+    assert statement.to_string(DBEngine.Mysql) == (
         "CREATE TABLE `users` ( `id` binary(16) COMMENT 'User uuid' )"
     )
 
@@ -383,15 +383,15 @@ def test_col_auto_increment():
         .column(Column("id").big_integer().primary_key().auto_increment())
     )
 
-    assert statement.build_sql(DBEngine.Postgres) == (
+    assert statement.to_string(DBEngine.Postgres) == (
         'CREATE TABLE "users" ( "id" bigserial PRIMARY KEY )'
     )
 
-    assert statement.build_sql(DBEngine.Sqlite) == (
+    assert statement.to_string(DBEngine.Sqlite) == (
         'CREATE TABLE "users" ( "id" integer PRIMARY KEY AUTOINCREMENT )'
     )
 
-    assert statement.build_sql(DBEngine.Mysql) == (
+    assert statement.to_string(DBEngine.Mysql) == (
         "CREATE TABLE `users` ( `id` bigint PRIMARY KEY AUTO_INCREMENT )"
     )
 
@@ -401,10 +401,10 @@ def test_col_auto_increment():
         .column(Column("id").small_integer().auto_increment())
     )
 
-    assert statement.build_sql(DBEngine.Postgres) == (
+    assert statement.to_string(DBEngine.Postgres) == (
         'CREATE TABLE "users" ( "id" smallserial )'
     )
 
-    assert statement.build_sql(DBEngine.Mysql) == (
+    assert statement.to_string(DBEngine.Mysql) == (
         "CREATE TABLE `users` ( `id` smallint AUTO_INCREMENT )"
     )

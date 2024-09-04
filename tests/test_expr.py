@@ -6,7 +6,7 @@ def test_eq():
         Query.select().all().from_table("table").and_where(Expr.column("column").eq(1))
     )
     assert (
-        query.build_sql(DBEngine.Postgres) == 'SELECT * FROM "table" WHERE "column" = 1'
+        query.to_string(DBEngine.Postgres) == 'SELECT * FROM "table" WHERE "column" = 1'
     )
 
 
@@ -15,7 +15,7 @@ def test_ne():
         Query.select().all().from_table("table").and_where(Expr.column("column").ne(1))
     )
     assert (
-        query.build_sql(DBEngine.Postgres)
+        query.to_string(DBEngine.Postgres)
         == 'SELECT * FROM "table" WHERE "column" <> 1'
     )
 
@@ -25,7 +25,7 @@ def test_gt():
         Query.select().all().from_table("table").and_where(Expr.column("column").gt(1))
     )
     assert (
-        query.build_sql(DBEngine.Postgres) == 'SELECT * FROM "table" WHERE "column" > 1'
+        query.to_string(DBEngine.Postgres) == 'SELECT * FROM "table" WHERE "column" > 1'
     )
 
 
@@ -34,7 +34,7 @@ def test_gte():
         Query.select().all().from_table("table").and_where(Expr.column("column").gte(1))
     )
     assert (
-        query.build_sql(DBEngine.Postgres)
+        query.to_string(DBEngine.Postgres)
         == 'SELECT * FROM "table" WHERE "column" >= 1'
     )
 
@@ -44,7 +44,7 @@ def test_lt():
         Query.select().all().from_table("table").and_where(Expr.column("column").lt(1))
     )
     assert (
-        query.build_sql(DBEngine.Postgres) == 'SELECT * FROM "table" WHERE "column" < 1'
+        query.to_string(DBEngine.Postgres) == 'SELECT * FROM "table" WHERE "column" < 1'
     )
 
 
@@ -53,7 +53,7 @@ def test_lte():
         Query.select().all().from_table("table").and_where(Expr.column("column").lte(1))
     )
     assert (
-        query.build_sql(DBEngine.Postgres)
+        query.to_string(DBEngine.Postgres)
         == 'SELECT * FROM "table" WHERE "column" <= 1'
     )
 
@@ -63,7 +63,7 @@ def test_is():
         Query.select().from_table("table").and_where(Expr.column("column").is_(True))
     )
     assert (
-        query.build_sql(DBEngine.Postgres)
+        query.to_string(DBEngine.Postgres)
         == 'SELECT  FROM "table" WHERE "column" IS TRUE'
     )
 
@@ -75,7 +75,7 @@ def test_is_not():
         .and_where(Expr.column("column").is_not(False))
     )
     assert (
-        query.build_sql(DBEngine.Postgres)
+        query.to_string(DBEngine.Postgres)
         == 'SELECT  FROM "table" WHERE "column" IS NOT FALSE'
     )
 
@@ -89,7 +89,7 @@ def test_is_in():
         .and_where(Expr.column("column").is_in([1, 2, 3]))
     )
     assert (
-        query.build_sql(DBEngine.Postgres)
+        query.to_string(DBEngine.Postgres)
         == 'SELECT * FROM "table" WHERE "column" IN (1, 2, 3)'
     )
 
@@ -101,7 +101,7 @@ def test_is_in():
         .and_where(Expr.column("column").is_in((1, 2, 3)))
     )
     assert (
-        query.build_sql(DBEngine.Postgres)
+        query.to_string(DBEngine.Postgres)
         == 'SELECT * FROM "table" WHERE "column" IN (1, 2, 3)'
     )
 
@@ -115,7 +115,7 @@ def test_is_not_in():
         .and_where(Expr.column("column").is_not_in([1, 2, 3]))
     )
     assert (
-        query.build_sql(DBEngine.Postgres)
+        query.to_string(DBEngine.Postgres)
         == 'SELECT * FROM "table" WHERE "column" NOT IN (1, 2, 3)'
     )
 
@@ -127,7 +127,7 @@ def test_is_not_in():
         .and_where(Expr.column("column").is_not_in((1, 2, 3)))
     )
     assert (
-        query.build_sql(DBEngine.Postgres)
+        query.to_string(DBEngine.Postgres)
         == 'SELECT * FROM "table" WHERE "column" NOT IN (1, 2, 3)'
     )
 
@@ -140,7 +140,7 @@ def test_between():
         .and_where(Expr.column("column").between(1, 2))
     )
     assert (
-        query.build_sql(DBEngine.Postgres)
+        query.to_string(DBEngine.Postgres)
         == 'SELECT * FROM "table" WHERE "column" BETWEEN 1 AND 2'
     )
 
@@ -153,7 +153,7 @@ def test_not_between():
         .and_where(Expr.column("column").not_between(1, 2))
     )
     assert (
-        query.build_sql(DBEngine.Postgres)
+        query.to_string(DBEngine.Postgres)
         == 'SELECT * FROM "table" WHERE "column" NOT BETWEEN 1 AND 2'
     )
 
@@ -166,7 +166,7 @@ def test_like():
         .and_where(Expr.column("column").like("abc%"))
     )
     assert (
-        query.build_sql(DBEngine.Postgres)
+        query.to_string(DBEngine.Postgres)
         == 'SELECT * FROM "table" WHERE "column" LIKE \'abc%\''
     )
 
@@ -179,7 +179,7 @@ def test_not_like():
         .and_where(Expr.column("column").not_like("abc%"))
     )
     assert (
-        query.build_sql(DBEngine.Postgres)
+        query.to_string(DBEngine.Postgres)
         == 'SELECT * FROM "table" WHERE "column" NOT LIKE \'abc%\''
     )
 
@@ -192,7 +192,7 @@ def test_is_null():
         .and_where(Expr.column("column").is_null())
     )
     assert (
-        query.build_sql(DBEngine.Postgres)
+        query.to_string(DBEngine.Postgres)
         == 'SELECT * FROM "table" WHERE "column" IS NULL'
     )
 
@@ -205,29 +205,29 @@ def test_is_not_null():
         .and_where(Expr.column("column").is_not_null())
     )
     assert (
-        query.build_sql(DBEngine.Postgres)
+        query.to_string(DBEngine.Postgres)
         == 'SELECT * FROM "table" WHERE "column" IS NOT NULL'
     )
 
 
 def test_max():
     query = Query.select().from_table("table").expr(Expr.column("column").max())
-    assert query.build_sql(DBEngine.Postgres) == 'SELECT MAX("column") FROM "table"'
+    assert query.to_string(DBEngine.Postgres) == 'SELECT MAX("column") FROM "table"'
 
 
 def test_min():
     query = Query.select().from_table("table").expr(Expr.column("column").min())
-    assert query.build_sql(DBEngine.Postgres) == 'SELECT MIN("column") FROM "table"'
+    assert query.to_string(DBEngine.Postgres) == 'SELECT MIN("column") FROM "table"'
 
 
 def test_sum():
     query = Query.select().from_table("table").expr(Expr.column("column").sum())
-    assert query.build_sql(DBEngine.Postgres) == 'SELECT SUM("column") FROM "table"'
+    assert query.to_string(DBEngine.Postgres) == 'SELECT SUM("column") FROM "table"'
 
 
 def test_count():
     query = Query.select().from_table("table").expr(Expr.column("column").count())
-    assert query.build_sql(DBEngine.Postgres) == 'SELECT COUNT("column") FROM "table"'
+    assert query.to_string(DBEngine.Postgres) == 'SELECT COUNT("column") FROM "table"'
 
 
 def test_count_distinct():
@@ -235,7 +235,7 @@ def test_count_distinct():
         Query.select().from_table("table").expr(Expr.column("column").count_distinct())
     )
     assert (
-        query.build_sql(DBEngine.Postgres)
+        query.to_string(DBEngine.Postgres)
         == 'SELECT COUNT(DISTINCT "column") FROM "table"'
     )
 
@@ -243,7 +243,7 @@ def test_count_distinct():
 def test_if_null():
     query = Query.select().from_table("table").expr(Expr.column("column").if_null(1))
     assert (
-        query.build_sql(DBEngine.Postgres)
+        query.to_string(DBEngine.Postgres)
         == 'SELECT COALESCE("column", 1) FROM "table"'
     )
 
@@ -261,7 +261,7 @@ def test_exists():
             )
         )
     )
-    assert query.build_sql(DBEngine.Postgres) == (
+    assert query.to_string(DBEngine.Postgres) == (
         'SELECT EXISTS(SELECT "column" FROM "table" WHERE "column" = 1) FROM "table"'
     )
 
@@ -269,14 +269,14 @@ def test_exists():
 def test_eq_int():
     query = Query.select().from_table("table").and_where(Expr.column("column").eq(1))
     assert (
-        query.build_sql(DBEngine.Postgres) == 'SELECT  FROM "table" WHERE "column" = 1'
+        query.to_string(DBEngine.Postgres) == 'SELECT  FROM "table" WHERE "column" = 1'
     )
 
 
 def test_eq_float():
     query = Query.select().from_table("table").and_where(Expr.column("column").eq(1.5))
     assert (
-        query.build_sql(DBEngine.Postgres)
+        query.to_string(DBEngine.Postgres)
         == 'SELECT  FROM "table" WHERE "column" = 1.5'
     )
 
@@ -286,7 +286,7 @@ def test_eq_str():
         Query.select().from_table("table").and_where(Expr.column("column").eq("abc"))
     )
     assert (
-        query.build_sql(DBEngine.Postgres)
+        query.to_string(DBEngine.Postgres)
         == 'SELECT  FROM "table" WHERE "column" = \'abc\''
     )
 
@@ -294,6 +294,6 @@ def test_eq_str():
 def test_eq_bool():
     query = Query.select().from_table("table").and_where(Expr.column("column").eq(True))
     assert (
-        query.build_sql(DBEngine.Postgres)
+        query.to_string(DBEngine.Postgres)
         == 'SELECT  FROM "table" WHERE "column" = TRUE'
     )

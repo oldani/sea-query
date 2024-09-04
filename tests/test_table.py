@@ -32,7 +32,7 @@ def test_create_table_with_columns():
         .column(Column("age").integer().null())
     )
 
-    assert statement.build_sql(DBEngine.Postgres) == (
+    assert statement.to_string(DBEngine.Postgres) == (
         'CREATE TABLE "users" ( '
         '"id" bigserial PRIMARY KEY, '
         "\"name\" varchar(128) NOT NULL DEFAULT '', "
@@ -40,7 +40,7 @@ def test_create_table_with_columns():
         ")"
     )
 
-    assert statement.build_sql(DBEngine.Sqlite) == (
+    assert statement.to_string(DBEngine.Sqlite) == (
         'CREATE TABLE "users" ( '
         '"id" integer PRIMARY KEY AUTOINCREMENT, '
         "\"name\" varchar(128) NOT NULL DEFAULT '', "
@@ -48,7 +48,7 @@ def test_create_table_with_columns():
         ")"
     )
 
-    assert statement.build_sql(DBEngine.Mysql) == (
+    assert statement.to_string(DBEngine.Mysql) == (
         "CREATE TABLE `users` ( "
         "`id` bigint PRIMARY KEY AUTO_INCREMENT, "
         "`name` varchar(128) NOT NULL DEFAULT '', "
@@ -66,7 +66,7 @@ def test_create_table_add_check_constraint():
         .check(Expr.column("positive_int").gte(0))
     )
 
-    assert statement.build_sql(DBEngine.Postgres) == (
+    assert statement.to_string(DBEngine.Postgres) == (
         'CREATE TABLE "users" ( '
         '"id" bigserial PRIMARY KEY, '
         '"positive_int" integer NULL, '
@@ -74,7 +74,7 @@ def test_create_table_add_check_constraint():
         ")"
     )
 
-    assert statement.build_sql(DBEngine.Sqlite) == (
+    assert statement.to_string(DBEngine.Sqlite) == (
         'CREATE TABLE "users" ( '
         '"id" integer PRIMARY KEY AUTOINCREMENT, '
         '"positive_int" integer NULL, '
@@ -82,7 +82,7 @@ def test_create_table_add_check_constraint():
         ")"
     )
 
-    assert statement.build_sql(DBEngine.Mysql) == (
+    assert statement.to_string(DBEngine.Mysql) == (
         "CREATE TABLE `users` ( "
         "`id` bigint PRIMARY KEY AUTO_INCREMENT, "
         "`positive_int` int NULL, "
@@ -101,7 +101,7 @@ def test_create_table_add_index():
         .index(IndexCreateStatement().column("email"))
     )
 
-    assert statement.build_sql(DBEngine.Mysql) == (
+    assert statement.to_string(DBEngine.Mysql) == (
         "CREATE TABLE `users` ( `id` bigint PRIMARY KEY AUTO_INCREMENT, `email` varchar(64), KEY (`email`) )"
     )
 
@@ -116,15 +116,15 @@ def test_create_table_add_primary_key():
     )
 
     assert (
-        statement.build_sql(DBEngine.Postgres)
+        statement.to_string(DBEngine.Postgres)
         == 'CREATE TABLE "users" ( "id" bigserial, "email" varchar(64), PRIMARY KEY ("id", "email") )'
     )
     assert (
-        statement.build_sql(DBEngine.Sqlite)
+        statement.to_string(DBEngine.Sqlite)
         == 'CREATE TABLE "users" ( "id" integer AUTOINCREMENT, "email" varchar(64), PRIMARY KEY ("id", "email") )'
     )
 
-    assert statement.build_sql(DBEngine.Mysql) == (
+    assert statement.to_string(DBEngine.Mysql) == (
         "CREATE TABLE `users` ( `id` bigint AUTO_INCREMENT, `email` varchar(64), PRIMARY KEY (`id`, `email`) )"
     )
 
@@ -146,15 +146,15 @@ def test_create_table_add_foreign_key():
     )
 
     assert (
-        statement.build_sql(DBEngine.Postgres)
+        statement.to_string(DBEngine.Postgres)
         == 'CREATE TABLE "profiles" ( "id" bigserial PRIMARY KEY, "user_id" bigint, CONSTRAINT "fk_profile_user_id" FOREIGN KEY ("user_id") REFERENCES "users" ("id") )'
     )
     assert (
-        statement.build_sql(DBEngine.Sqlite)
+        statement.to_string(DBEngine.Sqlite)
         == 'CREATE TABLE "profiles" ( "id" integer PRIMARY KEY AUTOINCREMENT, "user_id" bigint, FOREIGN KEY ("user_id") REFERENCES "users" ("id") )'
     )
     assert (
-        statement.build_sql(DBEngine.Mysql)
+        statement.to_string(DBEngine.Mysql)
         == "CREATE TABLE `profiles` ( `id` bigint AUTO_INCREMENT PRIMARY KEY, `user_id` bigint, CONSTRAINT `fk_profile_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) )"
     )
 
@@ -178,11 +178,11 @@ def test_alter_table_add_columns():
         .add_column(Column("email").string().string_len(128))
         .add_column(Column("phone").string().string_len(16))
     )
-    assert statement.build_sql(DBEngine.Postgres) == (
+    assert statement.to_string(DBEngine.Postgres) == (
         'ALTER TABLE "users" ADD COLUMN "email" varchar(128), ADD COLUMN "phone" varchar(16)'
     )
     # TODO: Catch sqlite does not support multiple alter options
-    assert statement.build_sql(DBEngine.Mysql) == (
+    assert statement.to_string(DBEngine.Mysql) == (
         "ALTER TABLE `users` ADD COLUMN `email` varchar(128), ADD COLUMN `phone` varchar(16)"
     )
 
@@ -194,13 +194,13 @@ def test_alter_table_add_column_if_not_exists():
         .add_column_if_not_exists(Column("email").string().string_len(128))
     )
 
-    assert statement.build_sql(DBEngine.Postgres) == (
+    assert statement.to_string(DBEngine.Postgres) == (
         'ALTER TABLE "users" ADD COLUMN IF NOT EXISTS "email" varchar(128)'
     )
-    assert statement.build_sql(DBEngine.Sqlite) == (
+    assert statement.to_string(DBEngine.Sqlite) == (
         'ALTER TABLE "users" ADD COLUMN "email" varchar(128)'
     )
-    assert statement.build_sql(DBEngine.Mysql) == (
+    assert statement.to_string(DBEngine.Mysql) == (
         "ALTER TABLE `users` ADD COLUMN IF NOT EXISTS `email` varchar(128)"
     )
 
@@ -208,11 +208,11 @@ def test_alter_table_add_column_if_not_exists():
 def test_alter_table_modify_column():
     statement = Table.alter().table("table").modify_column(Column("created_at").date())
 
-    assert statement.build_sql(DBEngine.Postgres) == (
+    assert statement.to_string(DBEngine.Postgres) == (
         'ALTER TABLE "table" ALTER COLUMN "created_at" TYPE date'
     )
     # TODO: Catch sqlite does not support modify column
-    assert statement.build_sql(DBEngine.Mysql) == (
+    assert statement.to_string(DBEngine.Mysql) == (
         "ALTER TABLE `table` MODIFY COLUMN `created_at` date"
     )
 
@@ -245,11 +245,11 @@ def test_alter_table_add_foreign_key():
         )
     )
 
-    assert statement.build_sql(DBEngine.Postgres) == (
+    assert statement.to_string(DBEngine.Postgres) == (
         'ALTER TABLE "users" ADD CONSTRAINT "fk_users_id" FOREIGN KEY ("id") REFERENCES "profiles" ("user_id") ON DELETE CASCADE'
     )
 
-    assert statement.build_sql(DBEngine.Mysql) == (
+    assert statement.to_string(DBEngine.Mysql) == (
         "ALTER TABLE `users` ADD CONSTRAINT `fk_users_id` FOREIGN KEY (`id`) REFERENCES `profiles` (`user_id`) ON DELETE CASCADE"
     )
 
@@ -258,11 +258,11 @@ def test_alter_table_drop_foreign_key():
     statement = Table.alter().table("users").drop_foreign_key("fk_users_id")
 
     assert (
-        statement.build_sql(DBEngine.Postgres)
+        statement.to_string(DBEngine.Postgres)
         == 'ALTER TABLE "users" DROP CONSTRAINT "fk_users_id"'
     )
     assert (
-        statement.build_sql(DBEngine.Mysql)
+        statement.to_string(DBEngine.Mysql)
         == "ALTER TABLE `users` DROP FOREIGN KEY `fk_users_id`"
     )
 
@@ -285,17 +285,17 @@ def test_drop_table_if_exists():
 def test_drop_table_restrict():
     statement = Table.drop().table("table").restrict()
 
-    assert statement.build_sql(DBEngine.Postgres) == 'DROP TABLE "table" RESTRICT'
-    assert statement.build_sql(DBEngine.Sqlite) == 'DROP TABLE "table"'
-    assert statement.build_sql(DBEngine.Mysql) == "DROP TABLE `table` RESTRICT"
+    assert statement.to_string(DBEngine.Postgres) == 'DROP TABLE "table" RESTRICT'
+    assert statement.to_string(DBEngine.Sqlite) == 'DROP TABLE "table"'
+    assert statement.to_string(DBEngine.Mysql) == "DROP TABLE `table` RESTRICT"
 
 
 def test_drop_table_cascade():
     statement = Table.drop().table("table").cascade()
 
-    assert statement.build_sql(DBEngine.Postgres) == 'DROP TABLE "table" CASCADE'
-    assert statement.build_sql(DBEngine.Sqlite) == 'DROP TABLE "table"'
-    assert statement.build_sql(DBEngine.Mysql) == "DROP TABLE `table` CASCADE"
+    assert statement.to_string(DBEngine.Postgres) == 'DROP TABLE "table" CASCADE'
+    assert statement.to_string(DBEngine.Sqlite) == 'DROP TABLE "table"'
+    assert statement.to_string(DBEngine.Mysql) == "DROP TABLE `table` CASCADE"
 
 
 def test_rename_table():
@@ -309,7 +309,7 @@ def test_rename_table():
 
 def test_truncate_table():
     statement = Table.truncate().table("table")
-    assert statement.build_sql(DBEngine.Postgres) == 'TRUNCATE TABLE "table"'
+    assert statement.to_string(DBEngine.Postgres) == 'TRUNCATE TABLE "table"'
     # TODO: Sqlite does not support TRUNCATE TABLE
     # TODO: Add test to catch the exception
-    assert statement.build_sql(DBEngine.Mysql) == "TRUNCATE TABLE `table`"
+    assert statement.to_string(DBEngine.Mysql) == "TRUNCATE TABLE `table`"

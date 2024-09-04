@@ -11,10 +11,10 @@ def test_create_foreign_key():
         .to_column("to_col")
     )
 
-    assert foreign_key.build_sql(DBEngine.Postgres) == (
+    assert foreign_key.to_string(DBEngine.Postgres) == (
         'ALTER TABLE "from_table" ADD CONSTRAINT "fk_name" FOREIGN KEY ("from_col") REFERENCES "to_table" ("to_col")'
     )
-    assert foreign_key.build_sql(DBEngine.Mysql) == (
+    assert foreign_key.to_string(DBEngine.Mysql) == (
         "ALTER TABLE `from_table` ADD CONSTRAINT `fk_name` FOREIGN KEY (`from_col`) REFERENCES `to_table` (`to_col`)"
     )
     # TODO: SQLite does not support adding foreign key constraints after table creation
@@ -31,10 +31,10 @@ def test_create_foreign_key_on_delete():
         .on_delete(ForeignKeyAction.Cascade)
     )
 
-    assert foreign_key.build_sql(DBEngine.Postgres) == (
+    assert foreign_key.to_string(DBEngine.Postgres) == (
         'ALTER TABLE "orders" ADD CONSTRAINT "fk_name" FOREIGN KEY ("customer_id") REFERENCES "customers" ("id") ON DELETE CASCADE'
     )
-    assert foreign_key.build_sql(DBEngine.Mysql) == (
+    assert foreign_key.to_string(DBEngine.Mysql) == (
         "ALTER TABLE `orders` ADD CONSTRAINT `fk_name` FOREIGN KEY (`customer_id`) REFERENCES `customers` (`id`) ON DELETE CASCADE"
     )
 
@@ -50,10 +50,10 @@ def test_create_foreign_key_on_update():
         .on_update(ForeignKeyAction.Cascade)
     )
 
-    assert foreign_key.build_sql(DBEngine.Postgres) == (
+    assert foreign_key.to_string(DBEngine.Postgres) == (
         'ALTER TABLE "orders" ADD CONSTRAINT "fk_name" FOREIGN KEY ("customer_id") REFERENCES "customers" ("id") ON UPDATE CASCADE'
     )
-    assert foreign_key.build_sql(DBEngine.Mysql) == (
+    assert foreign_key.to_string(DBEngine.Mysql) == (
         "ALTER TABLE `orders` ADD CONSTRAINT `fk_name` FOREIGN KEY (`customer_id`) REFERENCES `customers` (`id`) ON UPDATE CASCADE"
     )
 
@@ -70,10 +70,10 @@ def test_create_foreign_key_on_delete_and_update():
         .on_update(ForeignKeyAction.Cascade)
     )
 
-    assert foreign_key.build_sql(DBEngine.Postgres) == (
+    assert foreign_key.to_string(DBEngine.Postgres) == (
         'ALTER TABLE "orders" ADD CONSTRAINT "fk_name" FOREIGN KEY ("customer_id") REFERENCES "customers" ("id") ON DELETE CASCADE ON UPDATE CASCADE'
     )
-    assert foreign_key.build_sql(DBEngine.Mysql) == (
+    assert foreign_key.to_string(DBEngine.Mysql) == (
         "ALTER TABLE `orders` ADD CONSTRAINT `fk_name` FOREIGN KEY (`customer_id`) REFERENCES `customers` (`id`) ON DELETE CASCADE ON UPDATE CASCADE"
     )
 
@@ -82,10 +82,10 @@ def test_drop_foreign_key():
     foreign_key = ForeignKey.drop().name("fk_name").table("table")
 
     assert (
-        foreign_key.build_sql(DBEngine.Postgres)
+        foreign_key.to_string(DBEngine.Postgres)
         == 'ALTER TABLE "table" DROP CONSTRAINT "fk_name"'
     )
     assert (
-        foreign_key.build_sql(DBEngine.Mysql)
+        foreign_key.to_string(DBEngine.Mysql)
         == "ALTER TABLE `table` DROP FOREIGN KEY `fk_name`"
     )

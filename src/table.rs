@@ -263,7 +263,7 @@ impl TableCreateStatement {
         slf
     }
 
-    fn build_sql(&self, builder: &DBEngine) -> String {
+    fn to_string(&self, builder: &DBEngine) -> String {
         match builder {
             DBEngine::Mysql => self.0.to_string(MysqlQueryBuilder),
             DBEngine::Postgres => self.0.to_string(PostgresQueryBuilder),
@@ -330,7 +330,7 @@ impl TableAlterStatement {
         slf
     }
 
-    fn build_sql(&self, builder: &DBEngine) -> String {
+    fn to_string(&self, builder: &DBEngine) -> String {
         match builder {
             DBEngine::Mysql => self.0.to_string(MysqlQueryBuilder),
             DBEngine::Postgres => self.0.to_string(PostgresQueryBuilder),
@@ -369,7 +369,7 @@ impl TableDropStatement {
         slf
     }
 
-    fn build_sql(&self, builder: &DBEngine) -> String {
+    fn to_string(&self, builder: &DBEngine) -> String {
         match builder {
             DBEngine::Mysql => self.0.to_string(MysqlQueryBuilder),
             DBEngine::Postgres => self.0.to_string(PostgresQueryBuilder),
@@ -393,7 +393,7 @@ impl TableRenameStatement {
         slf
     }
 
-    fn build_sql(&self, builder: &DBEngine) -> String {
+    fn to_string(&self, builder: &DBEngine) -> String {
         match builder {
             DBEngine::Mysql => self.0.to_string(MysqlQueryBuilder),
             DBEngine::Postgres => self.0.to_string(PostgresQueryBuilder),
@@ -417,7 +417,7 @@ impl TableTruncateStatement {
         slf
     }
 
-    fn build_sql(&self, builder: &DBEngine) -> String {
+    fn to_string(&self, builder: &DBEngine) -> String {
         match builder {
             DBEngine::Mysql => self.0.to_string(MysqlQueryBuilder),
             DBEngine::Postgres => self.0.to_string(PostgresQueryBuilder),

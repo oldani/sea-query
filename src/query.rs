@@ -274,7 +274,7 @@ impl SelectStatement {
         slf
     }
 
-    fn build_sql(&self, engine: &DBEngine) -> String {
+    fn to_string(&self, engine: &DBEngine) -> String {
         match engine {
             DBEngine::Mysql => self.0.to_string(MysqlQueryBuilder),
             DBEngine::Postgres => self.0.to_string(PostgresQueryBuilder),
@@ -335,7 +335,7 @@ impl InsertStatement {
         slf
     }
 
-    fn build_sql(&self, engine: &DBEngine) -> String {
+    fn to_string(&self, engine: &DBEngine) -> String {
         match engine {
             DBEngine::Mysql => self.0.to_string(MysqlQueryBuilder),
             DBEngine::Postgres => self.0.to_string(PostgresQueryBuilder),
@@ -398,7 +398,7 @@ impl UpdateStatement {
         slf
     }
 
-    fn build_sql(&self, engine: &DBEngine) -> String {
+    fn to_string(&self, engine: &DBEngine) -> String {
         match engine {
             DBEngine::Mysql => self.0.to_string(MysqlQueryBuilder),
             DBEngine::Postgres => self.0.to_string(PostgresQueryBuilder),
@@ -447,7 +447,7 @@ impl DeleteStatement {
         slf
     }
 
-    fn build_sql(&self, engine: &DBEngine) -> String {
+    fn to_string(&self, engine: &DBEngine) -> String {
         match engine {
             DBEngine::Mysql => self.0.to_string(MysqlQueryBuilder),
             DBEngine::Postgres => self.0.to_string(PostgresQueryBuilder),

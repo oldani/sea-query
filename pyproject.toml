@@ -4,17 +4,29 @@ build-backend = "maturin"
 
 [project]
 name = "sea-query"
-description = "SQL query builder base on SeaQuery"
+description = "Query builder to help you construct dynamic SQL queries"
 requires-python = ">=3.8"
 authors = [{ name = "Ordanis Sanchez", email = "sea-query@ordanisanchez.dev" }]
 readme = "README.md"
 license = { file = "LICENSE" }
 dynamic = ["version"]
 classifiers = [
+    "Topic :: Database",
+    "Topic :: Software Development :: Libraries",
+    "Development Status :: 3 - Alpha",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
     "Programming Language :: Rust",
     "Programming Language :: Python :: Implementation :: CPython",
     "Programming Language :: Python :: Implementation :: PyPy",
+    "Typing :: Stubs Only",
 ]
+
+[project.urls]
+Repository = "https://github.com/oldani/sea-query/"
 
 [tool.maturin]
 features = ["pyo3/extension-module"]

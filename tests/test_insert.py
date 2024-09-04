@@ -15,6 +15,20 @@ def test_insert_into():
     )
 
 
+def test_insert_multiple_values():
+    query = (
+        Query.insert()
+        .into("table")
+        .columns(["column1", "column2"])
+        .values([1, "str1"])
+        .values([2, "str2"])
+    )
+    assert_query(
+        query,
+        'INSERT INTO "table" ("column1", "column2") VALUES (1, \'str1\'), (2, \'str2\')',
+    )
+
+
 def test_select_from():
     query = (
         Query.insert()

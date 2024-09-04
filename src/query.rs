@@ -281,6 +281,11 @@ impl SelectStatement {
             DBEngine::Sqlite => self.0.to_string(SqliteQueryBuilder),
         }
     }
+
+    fn build(&self, engine: &DBEngine) -> (String, Vec<PyValue>) {
+        let (sql, values) = self.0.build_any(&*engine.query_builder());
+        (sql, values.iter().map(|v| v.into()).collect())
+    }
 }
 
 #[pyclass]
@@ -341,6 +346,11 @@ impl InsertStatement {
             DBEngine::Postgres => self.0.to_string(PostgresQueryBuilder),
             DBEngine::Sqlite => self.0.to_string(SqliteQueryBuilder),
         }
+    }
+
+    fn build(&self, engine: &DBEngine) -> (String, Vec<PyValue>) {
+        let (sql, values) = self.0.build_any(&*engine.query_builder());
+        (sql, values.iter().map(|v| v.into()).collect())
     }
 }
 
@@ -405,6 +415,11 @@ impl UpdateStatement {
             DBEngine::Sqlite => self.0.to_string(SqliteQueryBuilder),
         }
     }
+
+    fn build(&self, engine: &DBEngine) -> (String, Vec<PyValue>) {
+        let (sql, values) = self.0.build_any(&*engine.query_builder());
+        (sql, values.iter().map(|v| v.into()).collect())
+    }
 }
 
 #[pyclass]
@@ -453,5 +468,10 @@ impl DeleteStatement {
             DBEngine::Postgres => self.0.to_string(PostgresQueryBuilder),
             DBEngine::Sqlite => self.0.to_string(SqliteQueryBuilder),
         }
+    }
+
+    fn build(&self, engine: &DBEngine) -> (String, Vec<PyValue>) {
+        let (sql, values) = self.0.build_any(&*engine.query_builder());
+        (sql, values.iter().map(|v| v.into()).collect())
     }
 }

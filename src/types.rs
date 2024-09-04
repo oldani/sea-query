@@ -1,8 +1,10 @@
-use pyo3::{pyclass, FromPyObject};
+use pyo3::{pyclass, FromPyObject, IntoPy, PyObject, Python};
 use sea_query::{
+    backend::{MysqlQueryBuilder, PostgresQueryBuilder, QueryBuilder, SqliteQueryBuilder},
     index::{IndexOrder, IndexType as SeaIndexType},
     query::{LockBehavior as SeaLockBehavior, LockType as SeaLockType, UnionType as SeaUnionType},
-    NullOrdering as SeaNullOrdering, Order as SeaOrder, Value,
+    value::Value,
+    NullOrdering as SeaNullOrdering, Order as SeaOrder,
 };
 
 #[pyclass(eq, eq_int)]
@@ -13,11 +15,21 @@ pub enum DBEngine {
     Sqlite,
 }
 
-#[derive(FromPyObject)]
+impl DBEngine {
+    pub fn query_builder(&self) -> Box<dyn QueryBuilder> {
+        match self {
+            DBEngine::Mysql => Box::new(MysqlQueryBuilder),
+            DBEngine::Postgres => Box::new(PostgresQueryBuilder),
+            DBEngine::Sqlite => Box::new(SqliteQueryBuilder),
+        }
+    }
+}
+
+#[derive(FromPyObject, Clone)]
 pub enum PyValue {
     Bool(bool),
-    Float(f64),
     Int(i64),
+    Float(f64),
     String(String),
 }
 
@@ -29,6 +41,29 @@ impl From<&PyValue> for Value {
             PyValue::Int(v) => Value::BigInt(Some(*v)),
             PyValue::String(v) => Value::String(Some(Box::new(v.clone()))),
             // TODO: Add support for other types
+        }
+    }
+}
+
+impl Into<PyValue> for &Value {
+    fn into(self) -> PyValue {
+        match self {
+            Value::Bool(v) => PyValue::Bool(v.unwrap()),
+            Value::Double(v) => PyValue::Float(v.unwrap()),
+            Value::BigInt(v) => PyValue::Int(v.unwrap()),
+            Value::String(v) => PyValue::String(*v.clone().unwrap()),
+            _ => unimplemented!(),
+        }
+    }
+}
+
+impl IntoPy<PyObject> for PyValue {
+    fn into_py(self, py: Python<'_>) -> PyObject {
+        match self {
+            PyValue::Bool(v) => v.into_py(py),
+            PyValue::Float(v) => v.into_py(py),
+            PyValue::Int(v) => v.into_py(py),
+            PyValue::String(v) => v.into_py(py),
         }
     }
 }

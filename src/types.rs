@@ -54,9 +54,9 @@ impl From<&PyValue> for Value {
     }
 }
 
-impl Into<PyValue> for &Value {
-    fn into(self) -> PyValue {
-        match self {
+impl From<&Value> for PyValue {
+    fn from(val: &Value) -> Self {
+        match val {
             Value::Bool(v) => PyValue::Bool(v.unwrap()),
             Value::BigInt(v) => PyValue::Int(v.unwrap()),
             Value::Double(v) => PyValue::Float(v.unwrap()),

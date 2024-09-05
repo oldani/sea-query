@@ -7,7 +7,7 @@ on:
   pull_request:
     branches:
       - master
-    
+
 env:
   UV_CACHE_DIR: /tmp/.uv-cache
 
@@ -48,23 +48,23 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-    
+
       - name: Install uv
         run: curl -LsSf https://astral.sh/uv/0.4.2/install.sh | sh
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
+          python-version: "3.12"
 
       - name: Restore uv cache
         uses: actions/cache@v4
         with:
-          path: ${ env.UV_CACHE_DIR }
-          key: uv-${ runner.os }-${ hashFiles('uv.lock') }
+          path: ${{ env.UV_CACHE_DIR }}
+          key: uv-${{ runner.os }}-${{ hashFiles('uv.lock') }}
           restore-keys: |
-            uv-${ runner.os }-${ hashFiles('uv.lock') }
-            uv-${ runner.os }
+            uv-${{ runner.os }}-${{ hashFiles('uv.lock') }}
+            uv-${{ runner.os }}
 
       - name: Install dev dependencies
         run: uv sync --frozen --dev
@@ -108,11 +108,11 @@ jobs:
       - name: Restore uv cache
         uses: actions/cache@v4
         with:
-          path: ${ env.UV_CACHE_DIR }
-          key: uv-${ runner.os }-${ hashFiles('uv.lock') }
+          path: ${{ env.UV_CACHE_DIR }}
+          key: uv-${{ runner.os }}-${{ hashFiles('uv.lock') }}
           restore-keys: |
-            uv-${ runner.os }-${ hashFiles('uv.lock') }
-            uv-${ runner.os }
+            uv-${{ runner.os }}-${{ hashFiles('uv.lock') }}
+            uv-${{ runner.os }}
 
       - name: Install project and dev dependencies
         run: uv sync --frozen --dev

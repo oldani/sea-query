@@ -1,3 +1,4 @@
+use chrono::{DateTime, FixedOffset, NaiveDate, NaiveDateTime, NaiveTime};
 use pyo3::{pyclass, FromPyObject, IntoPy, PyObject, Python};
 use sea_query::{
     backend::{MysqlQueryBuilder, PostgresQueryBuilder, QueryBuilder, SqliteQueryBuilder},
@@ -30,6 +31,10 @@ pub enum PyValue {
     Bool(bool),
     Int(i64),
     Float(f64),
+    DateTimeTz(DateTime<FixedOffset>),
+    DateTime(NaiveDateTime),
+    Date(NaiveDate),
+    Time(NaiveTime),
     String(String),
 }
 
@@ -39,6 +44,10 @@ impl From<&PyValue> for Value {
             PyValue::Bool(v) => Value::Bool(Some(*v)),
             PyValue::Float(v) => Value::Double(Some(*v)),
             PyValue::Int(v) => Value::BigInt(Some(*v)),
+            PyValue::DateTimeTz(v) => Value::ChronoDateTimeWithTimeZone(Some(Box::new(*v))),
+            PyValue::DateTime(v) => Value::ChronoDateTime(Some(Box::new(*v))),
+            PyValue::Date(v) => Value::ChronoDate(Some(Box::new(*v))),
+            PyValue::Time(v) => Value::ChronoTime(Some(Box::new(*v))),
             PyValue::String(v) => Value::String(Some(Box::new(v.clone()))),
             // TODO: Add support for other types
         }
@@ -49,8 +58,12 @@ impl Into<PyValue> for &Value {
     fn into(self) -> PyValue {
         match self {
             Value::Bool(v) => PyValue::Bool(v.unwrap()),
-            Value::Double(v) => PyValue::Float(v.unwrap()),
             Value::BigInt(v) => PyValue::Int(v.unwrap()),
+            Value::Double(v) => PyValue::Float(v.unwrap()),
+            Value::ChronoDateTimeWithTimeZone(v) => PyValue::DateTimeTz(*v.clone().unwrap()),
+            Value::ChronoDateTime(v) => PyValue::DateTime(*v.clone().unwrap()),
+            Value::ChronoDate(v) => PyValue::Date(*v.clone().unwrap()),
+            Value::ChronoTime(v) => PyValue::Time(*v.clone().unwrap()),
             Value::String(v) => PyValue::String(*v.clone().unwrap()),
             _ => unimplemented!(),
         }
@@ -63,6 +76,10 @@ impl IntoPy<PyObject> for PyValue {
             PyValue::Bool(v) => v.into_py(py),
             PyValue::Float(v) => v.into_py(py),
             PyValue::Int(v) => v.into_py(py),
+            PyValue::DateTimeTz(v) => v.into_py(py),
+            PyValue::DateTime(v) => v.into_py(py),
+            PyValue::Date(v) => v.into_py(py),
+            PyValue::Time(v) => v.into_py(py),
             PyValue::String(v) => v.into_py(py),
         }
     }

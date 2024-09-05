@@ -1,3 +1,4 @@
+import datetime as dt
 from enum import IntEnum
 from typing import Any, Optional, Self, TypeAlias, Union
 
@@ -37,7 +38,7 @@ class SimpleExpr:
     def __and__(self, other: SimpleExpr) -> SimpleExpr: ...
     def __invert__(self) -> SimpleExpr: ...
 
-ValueType: TypeAlias = Union[int, float, str, bool]
+ValueType: TypeAlias = Union[int, float, str, bool, dt.date, dt.time, dt.datetime]
 
 class Expr:
     @staticmethod

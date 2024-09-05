@@ -9,10 +9,12 @@ name = "sea_query"
 crate-type = ["cdylib"]
 
 [dependencies]
-pyo3 = "0.22.0"
+pyo3 = { version = "0.22.0", features = ["chrono"] }
 sea-query = { version = "0.31.0", default-features = false, features = [
     "thread-safe",
     "backend-postgres",
     "backend-mysql",
     "backend-sqlite",
+    "with-chrono",
 ] }
+chrono = { version = "0.4.38", default-features = false }

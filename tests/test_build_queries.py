@@ -1,3 +1,5 @@
+import datetime as dt
+
 from sea_query import Condition, DBEngine, Expr, Query
 
 
@@ -91,6 +93,42 @@ def test_bulk_insert_query_build():
     assert query.build(DBEngine.Sqlite) == (
         'INSERT INTO "table" ("col1", "col2", "col3") VALUES (?, ?, ?), (?, ?, ?), (?, ?, ?), (?, ?, ?)',
         [1, "val1", 1000, 2, "val2", 2000, 3, "val3", 3000, 4, "val4", 4000],
+    )
+
+
+def test_insert_build_with_diff_types():
+    query = (
+        Query.insert()
+        .into("table")
+        .columns(
+            ["boo", "int", "float", "str", "time", "date", "datetime", "datetime_tz"]
+        )
+        .values(
+            [
+                True,
+                1,
+                1.5,
+                "string",
+                dt.time(12, 30, 00),
+                dt.date(2024, 9, 12),
+                dt.datetime(2024, 9, 12, 12, 30, 00),
+                dt.datetime(2024, 9, 12, 12, 30, 00, tzinfo=dt.timezone.utc),
+            ]
+        )
+    )
+
+    assert query.build(DBEngine.Postgres) == (
+        'INSERT INTO "table" ("boo", "int", "float", "str", "time", "date", "datetime", "datetime_tz") VALUES ($1, $2, $3, $4, $5, $6, $7, $8)',
+        [
+            True,
+            1,
+            1.5,
+            "string",
+            dt.time(12, 30, 00),
+            dt.date(2024, 9, 12),
+            dt.datetime(2024, 9, 12, 12, 30, 00),
+            dt.datetime(2024, 9, 12, 12, 30, 00, tzinfo=dt.timezone.utc),
+        ],
     )
 
 

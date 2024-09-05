@@ -1,3 +1,5 @@
+import datetime as dt
+
 from sea_query import DBEngine, Expr, Query
 
 
@@ -266,14 +268,14 @@ def test_exists():
     )
 
 
-def test_eq_int():
+def test_pyvalue_int():
     query = Query.select().from_table("table").and_where(Expr.column("column").eq(1))
     assert (
         query.to_string(DBEngine.Postgres) == 'SELECT  FROM "table" WHERE "column" = 1'
     )
 
 
-def test_eq_float():
+def test_pyvalue_float():
     query = Query.select().from_table("table").and_where(Expr.column("column").eq(1.5))
     assert (
         query.to_string(DBEngine.Postgres)
@@ -281,7 +283,7 @@ def test_eq_float():
     )
 
 
-def test_eq_str():
+def test_pyvalue_str():
     query = (
         Query.select().from_table("table").and_where(Expr.column("column").eq("abc"))
     )
@@ -291,9 +293,80 @@ def test_eq_str():
     )
 
 
-def test_eq_bool():
+def test_pyvalue_bool():
     query = Query.select().from_table("table").and_where(Expr.column("column").eq(True))
     assert (
         query.to_string(DBEngine.Postgres)
         == 'SELECT  FROM "table" WHERE "column" = TRUE'
+    )
+
+
+def test_pyvalue_date():
+    query = (
+        Query.select()
+        .from_table("table")
+        .and_where(Expr.column("column").eq(dt.date(2024, 9, 12)))
+    )
+
+    assert (
+        query.to_string(DBEngine.Postgres)
+        == 'SELECT  FROM "table" WHERE "column" = \'2024-09-12\''
+    )
+
+
+def test_pyvalue_time():
+    query = (
+        Query.select()
+        .from_table("table")
+        .and_where(Expr.column("column").eq(dt.time(12, 30, 00)))
+    )
+
+    assert (
+        query.to_string(DBEngine.Postgres)
+        == 'SELECT  FROM "table" WHERE "column" = \'12:30:00\''
+    )
+
+
+def test_pyvalue_datetime():
+    query = (
+        Query.select()
+        .from_table("table")
+        .and_where(Expr.column("column").eq(dt.datetime(2024, 9, 12, 12, 30, 00)))
+    )
+
+    assert (
+        query.to_string(DBEngine.Postgres)
+        == 'SELECT  FROM "table" WHERE "column" = \'2024-09-12 12:30:00\''
+    )
+
+
+def test_pyvalue_datetime_with_tz():
+    query = (
+        Query.select()
+        .from_table("table")
+        .and_where(
+            Expr.column("column").eq(
+                dt.datetime(2024, 9, 12, 12, 30, 00, tzinfo=dt.timezone.utc)
+            )
+        )
+    )
+    assert (
+        query.to_string(DBEngine.Postgres)
+        == 'SELECT  FROM "table" WHERE "column" = \'2024-09-12 12:30:00 +00:00\''
+    )
+
+    query = (
+        Query.select()
+        .from_table("table")
+        .and_where(
+            Expr.column("column").eq(
+                dt.datetime(
+                    2024, 9, 12, 12, 30, 00, tzinfo=dt.timezone(dt.timedelta(hours=5))
+                )
+            )
+        )
+    )
+    assert (
+        query.to_string(DBEngine.Postgres)
+        == 'SELECT  FROM "table" WHERE "column" = \'2024-09-12 12:30:00 +05:00\''
     )

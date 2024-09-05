@@ -37,8 +37,13 @@ query = (
     .and_where(Expr.column("column1").ne(1))
     .and_where(Expr.column("column2").gt(2))
 )
-assert query.build_sql(DBEngine.Postgres) == (
+assert query.to_string(DBEngine.Postgres) == (
     'SELECT * FROM "table" WHERE "column1" <> 1 AND "column2" > 2'
+)
+# Or if you want to use parameter bindings
+assert query.build(DBEngine.Postgres) == (
+    'SELECT * FROM "table" WHERE "column1" <> $1 AND "column2" > $2',
+    [1, 2]
 )
 ```
 
@@ -54,8 +59,13 @@ query = (
     .values([1, "str1"])
     .values([2, "str2"])
 )
-assert query.build_sql(DBEngine.Postgres) == (
+assert query.to_string(DBEngine.Postgres) == (
     'INSERT INTO "table" ("column1", "column2") VALUES (1, \'str1\'), (2, \'str2\')'
+)
+# With parameter bindings
+assert query.build(DBEngine.Postgres) == (
+    'INSERT INTO "table" ("column1", "column2") VALUES ($1, $2), ($3, $4)',
+    [1, "str1", 2, "str2"],
 )
 ```
 
@@ -74,7 +84,7 @@ query = (
         .add(Expr.column("column3").eq(3))
     )
 )
-assert query.build_sql(DBEngine.Postgres) == (
+assert query.to_string(DBEngine.Postgres) == (
     'UPDATE "table" SET "column" = 1 WHERE "column2" = \'value\' OR "column3" = 3'
 )
 ```
@@ -89,7 +99,7 @@ query = (
     .from_table("table")
     .and_where(Expr.column("column1").eq(1))
 )
-assert query.build_sql(DBEngine.Postgres) == (
+assert query.to_string(DBEngine.Postgres) == (
     'DELETE FROM "table" WHERE "column1" = 1'
 )
 ```
@@ -109,7 +119,7 @@ statement = (
     .column(Column("email").string().string_len(255).null().unique())
 )
 
-assert statement.build_sql(DBEngine.Postgres) == (
+assert statement.to_string(DBEngine.Postgres) == (
     'CREATE TABLE "users" ( '
         '"id" bigserial PRIMARY KEY, '
         '"name" varchar(128) NOT NULL DEFAULT \'\', '
@@ -131,7 +141,7 @@ statement = (
     )
 )
 
-assert statement.build_sql(DBEngine.Postgres) == (
+assert statement.to_string(DBEngine.Postgres) == (
     'ALTER TABLE "users" ADD COLUMN "created_at" timestamp NULL'
 )
 ```
@@ -142,7 +152,7 @@ assert statement.build_sql(DBEngine.Postgres) == (
 from sea_query import Table, DBEngine
 
 assert (
-    Table.drop().table("users").build_sql(DBEngine.Postgres)
+    Table.drop().table("users").to_string(DBEngine.Postgres)
     == 'DROP TABLE "users"'
 )
 ```
@@ -160,7 +170,7 @@ index = (
     .column("col2")
 )
 
-assert index.build_sql(DBEngine.Postgres) == (
+assert index.to_string(DBEngine.Postgres) == (
     'CREATE INDEX "index_name" ON "table" ("col1", "col2")'
 )
 ```
@@ -174,7 +184,7 @@ index = (
     Index.drop().name("index_name").table("table")
 )
 
-assert index.build_sql(DBEngine.Postgres) == (
-    'DROP INDEX "index_name" ON "table"'
+assert index.to_string(DBEngine.Postgres) == (
+    'DROP INDEX "index_name"'
 )
 ```

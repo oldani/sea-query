@@ -39,8 +39,8 @@ impl Column {
         slf
     }
 
-    fn default(mut slf: PyRefMut<Self>, expr: Expr) -> PyRefMut<Self> {
-        slf.0.default(expr.0);
+    fn default(mut slf: PyRefMut<Self>, mut expr: Expr) -> PyRefMut<Self> {
+        slf.0.default(expr.take());
         slf
     }
 

@@ -15,6 +15,7 @@ fn sea_query(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<types::LockType>()?;
     m.add_class::<types::LockBehavior>()?;
     m.add_class::<types::IndexType>()?;
+    m.add_class::<types::ColumnType>()?;
     m.add_class::<types::DBEngine>()?;
     m.add_class::<expr::SimpleExpr>()?;
     m.add_class::<expr::Expr>()?;

@@ -249,8 +249,38 @@ class Index:
     @staticmethod
     def drop() -> IndexDropStatement: ...
 
+class ColumnType(IntEnum):
+    Char = 1
+    String = 2
+    Text = 3
+    TinyInteger = 4
+    SmallInteger = 5
+    Integer = 6
+    BigInteger = 7
+    TinyUnsigned = 8
+    SmallUnsigned = 9
+    Unsigned = 10
+    BigUnsigned = 11
+    Float = 12
+    Double = 13
+    Decimal = 14
+    DateTime = 15
+    Timestamp = 16
+    TimestampWithTz = 17
+    Date = 18
+    Time = 19
+    Blob = 20
+    Boolean = 21
+    Json = 22
+    Jsonb = 23
+    Uuid = 24
+
 class Column:
     def __init__(self, name: str) -> None: ...
+    @staticmethod
+    def new_with_type(name: str, column_type: ColumnType) -> Column: ...
+    def get_name(self) -> str: ...
+    def get_type(self) -> ColumnType | None: ...
     def not_null(self) -> Self: ...
     def null(self) -> Self: ...
     def default(self, expr: Expr) -> Self: ...

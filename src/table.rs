@@ -15,7 +15,7 @@ use crate::{
     expr::{Expr, SimpleExpr},
     foreign_key::ForeignKeyCreateStatement,
     index::IndexCreateStatement,
-    types::DBEngine,
+    types::{ColumnType, DBEngine},
 };
 
 #[pyclass]
@@ -27,6 +27,22 @@ impl Column {
     #[new]
     fn new(name: &str) -> Self {
         Self(ColumnDef::new(Alias::new(name)))
+    }
+
+    #[staticmethod]
+    fn new_with_type(name: &str, column_type: ColumnType) -> Self {
+        Self(ColumnDef::new_with_type(
+            Alias::new(name),
+            column_type.into(),
+        ))
+    }
+
+    fn get_name(&self) -> String {
+        self.0.get_column_name()
+    }
+
+    fn get_type(&self) -> Option<ColumnType> {
+        self.0.get_column_type().cloned().map(Into::into)
     }
 
     fn not_null(mut slf: PyRefMut<Self>) -> PyRefMut<Self> {

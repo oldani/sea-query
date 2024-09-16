@@ -4,6 +4,7 @@ use sea_query::{
     backend::{MysqlQueryBuilder, PostgresQueryBuilder, QueryBuilder, SqliteQueryBuilder},
     index::{IndexOrder, IndexType as SeaIndexType},
     query::{LockBehavior as SeaLockBehavior, LockType as SeaLockType, UnionType as SeaUnionType},
+    table::ColumnType as SeaColumnType,
     value::Value,
     NullOrdering as SeaNullOrdering, Order as SeaOrder,
 };
@@ -197,6 +198,98 @@ impl From<IndexType> for SeaIndexType {
             IndexType::BTree => SeaIndexType::BTree,
             IndexType::FullText => SeaIndexType::FullText,
             IndexType::Hash => SeaIndexType::Hash,
+        }
+    }
+}
+
+#[pyclass(eq, eq_int)]
+#[derive(Clone, PartialEq)]
+pub enum ColumnType {
+    Char,
+    String,
+    Text,
+    TinyInteger,
+    SmallInteger,
+    Integer,
+    BigInteger,
+    TinyUnsigned,
+    SmallUnsigned,
+    Unsigned,
+    BigUnsigned,
+    Float,
+    Double,
+    Decimal,
+    DateTime,
+    Timestamp,
+    TimestampWithTz,
+    Date,
+    Time,
+    Blob,
+    Boolean,
+    Json,
+    Jsonb,
+    Uuid,
+}
+
+impl From<ColumnType> for SeaColumnType {
+    fn from(val: ColumnType) -> Self {
+        match val {
+            ColumnType::Char => SeaColumnType::Char(None),
+            ColumnType::String => SeaColumnType::String(Default::default()),
+            ColumnType::Text => SeaColumnType::Text,
+            ColumnType::TinyInteger => SeaColumnType::TinyInteger,
+            ColumnType::SmallInteger => SeaColumnType::SmallInteger,
+            ColumnType::Integer => SeaColumnType::Integer,
+            ColumnType::BigInteger => SeaColumnType::BigInteger,
+            ColumnType::TinyUnsigned => SeaColumnType::TinyUnsigned,
+            ColumnType::SmallUnsigned => SeaColumnType::SmallUnsigned,
+            ColumnType::Unsigned => SeaColumnType::Unsigned,
+            ColumnType::BigUnsigned => SeaColumnType::BigUnsigned,
+            ColumnType::Float => SeaColumnType::Float,
+            ColumnType::Double => SeaColumnType::Double,
+            ColumnType::Decimal => SeaColumnType::Decimal(None),
+            ColumnType::DateTime => SeaColumnType::DateTime,
+            ColumnType::Timestamp => SeaColumnType::Timestamp,
+            ColumnType::TimestampWithTz => SeaColumnType::TimestampWithTimeZone,
+            ColumnType::Time => SeaColumnType::Time,
+            ColumnType::Date => SeaColumnType::Date,
+            ColumnType::Blob => SeaColumnType::Blob,
+            ColumnType::Boolean => SeaColumnType::Boolean,
+            ColumnType::Json => SeaColumnType::Json,
+            ColumnType::Jsonb => SeaColumnType::JsonBinary,
+            ColumnType::Uuid => SeaColumnType::Uuid,
+        }
+    }
+}
+
+impl From<SeaColumnType> for ColumnType {
+    fn from(val: SeaColumnType) -> ColumnType {
+        match val {
+            SeaColumnType::Char(_) => ColumnType::Char,
+            SeaColumnType::String(_) => ColumnType::String,
+            SeaColumnType::Text => ColumnType::Text,
+            SeaColumnType::TinyInteger => ColumnType::TinyInteger,
+            SeaColumnType::SmallInteger => ColumnType::SmallInteger,
+            SeaColumnType::Integer => ColumnType::Integer,
+            SeaColumnType::BigInteger => ColumnType::BigInteger,
+            SeaColumnType::TinyUnsigned => ColumnType::TinyUnsigned,
+            SeaColumnType::SmallUnsigned => ColumnType::SmallUnsigned,
+            SeaColumnType::Unsigned => ColumnType::Unsigned,
+            SeaColumnType::BigUnsigned => ColumnType::BigUnsigned,
+            SeaColumnType::Float => ColumnType::Float,
+            SeaColumnType::Double => ColumnType::Double,
+            SeaColumnType::Decimal(_) => ColumnType::Decimal,
+            SeaColumnType::DateTime => ColumnType::DateTime,
+            SeaColumnType::Timestamp => ColumnType::Timestamp,
+            SeaColumnType::TimestampWithTimeZone => ColumnType::TimestampWithTz,
+            SeaColumnType::Time => ColumnType::Time,
+            SeaColumnType::Date => ColumnType::Date,
+            SeaColumnType::Blob => ColumnType::Blob,
+            SeaColumnType::Boolean => ColumnType::Boolean,
+            SeaColumnType::Json => ColumnType::Json,
+            SeaColumnType::JsonBinary => ColumnType::Jsonb,
+            SeaColumnType::Uuid => ColumnType::Uuid,
+            _ => unimplemented!(),
         }
     }
 }

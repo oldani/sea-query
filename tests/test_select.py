@@ -1,14 +1,10 @@
 from sea_query import (
-    Condition,
     DBEngine,
     Expr,
-    LockBehavior,
-    LockType,
-    NullsOrder,
-    OrderBy,
     Query,
-    UnionType,
 )
+from sea_query.expr import Condition
+from sea_query.query import LockBehavior, LockType, NullsOrder, OrderBy, UnionType
 
 from tests.utils import assert_query
 

@@ -4,12 +4,13 @@ use sea_query::{
     expr::SimpleExpr as SeaSimpleExpr,
     query::{
         DeleteStatement as SeaDeleteStatement, InsertStatement as SeaInsertStatement,
-        SelectStatement as SeaSelectStatement, UpdateStatement as SeaUpdateStatement,
+        OnConflict as SeaOnConflict, SelectStatement as SeaSelectStatement,
+        UpdateStatement as SeaUpdateStatement,
     },
     Alias, Asterisk,
 };
 
-use crate::expr::{Condition, ConditionExpression, IntoSimpleExpr, OnConflict, SimpleExpr};
+use crate::expr::{Condition, ConditionExpression, IntoSimpleExpr, SimpleExpr};
 use crate::types::{DBEngine, LockBehavior, LockType, NullsOrder, OrderBy, PyValue, UnionType};
 
 #[pyclass]
@@ -36,6 +37,32 @@ impl Query {
     fn delete() -> DeleteStatement {
         DeleteStatement::new()
     }
+}
+
+#[pyclass]
+#[derive(Clone)]
+pub struct OnConflict(pub SeaOnConflict);
+
+#[pymethods]
+impl OnConflict {
+    #[staticmethod]
+    fn column(name: String) -> Self {
+        Self(SeaOnConflict::column(Alias::new(name)))
+    }
+
+    #[staticmethod]
+    fn columns(columns: Vec<String>) -> Self {
+        Self(SeaOnConflict::columns(
+            columns.iter().map(Alias::new).collect::<Vec<Alias>>(),
+        ))
+    }
+
+    fn do_nothing(mut slf: PyRefMut<Self>) -> PyRefMut<Self> {
+        slf.0.do_nothing();
+        slf
+    }
+
+    // TODO: Implement missing methods
 }
 
 #[pyclass]

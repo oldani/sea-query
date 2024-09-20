@@ -29,6 +29,8 @@ classifiers = [
 Repository = "https://github.com/oldani/sea-query/"
 
 [tool.maturin]
+python-source = "python"
+module-name = "sea_query._internal"
 features = ["pyo3/extension-module"]
 exclude = ["tests/*.py"]
 

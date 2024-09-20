@@ -1,6 +1,7 @@
 import datetime as dt
 
-from sea_query import Condition, DBEngine, Expr, Query
+from sea_query import DBEngine, Expr, Query
+from sea_query.expr import Condition
 
 
 def test_select_query_build():

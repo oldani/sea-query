@@ -1,4 +1,5 @@
-from sea_query import DBEngine, ForeignKey, ForeignKeyAction
+from sea_query import DBEngine, ForeignKey
+from sea_query.foreign_key import ForeignKeyAction
 
 
 def test_create_foreign_key():

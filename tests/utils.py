@@ -1,8 +1,6 @@
 from typing import Any, Optional
 
-from sea_query import (
-    DBEngine,
-)
+from sea_query import DBEngine
 
 
 def assert_query(

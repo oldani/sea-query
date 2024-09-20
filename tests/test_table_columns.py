@@ -1,4 +1,5 @@
-from sea_query import Column, DBEngine, Expr, Table
+from sea_query import DBEngine, Expr, Table
+from sea_query.table import Column
 
 from tests.utils import assert_query
 

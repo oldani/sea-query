@@ -1,4 +1,5 @@
-from sea_query import OnConflict, Query
+from sea_query import Query
+from sea_query.query import OnConflict
 
 from tests.utils import assert_query
 

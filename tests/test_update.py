@@ -1,4 +1,5 @@
-from sea_query import Condition, Expr, Query
+from sea_query import Expr, Query
+from sea_query.expr import Condition
 
 from tests.utils import assert_query
 

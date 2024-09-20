@@ -1,4 +1,5 @@
-from sea_query import DBEngine, Index, IndexType, OrderBy
+from sea_query import DBEngine, Index
+from sea_query.index import IndexType, OrderBy
 
 from tests.utils import assert_query
 

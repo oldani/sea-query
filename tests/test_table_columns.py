@@ -1,5 +1,5 @@
 from sea_query import DBEngine, Expr, Table
-from sea_query.table import Column
+from sea_query.table import Column, ColumnType
 
 from tests.utils import assert_query
 
@@ -311,6 +311,20 @@ def test_uuid_col():
     )
     assert statement.to_string(DBEngine.Mysql) == (
         "CREATE TABLE `users` ( `id` binary(16) )"
+    )
+
+
+def test_new_column_with_type():
+    statement = (
+        Table.create()
+        .name("users")
+        .column(Column.new_with_type("name", ColumnType.String))
+    )
+
+    assert_query(
+        statement,
+        'CREATE TABLE "users" ( "name" varchar )',
+        mysql_expected="CREATE TABLE `users` ( `name` varchar(255) )",
     )
 
 

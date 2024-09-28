@@ -3,8 +3,6 @@ from typing import Any
 from ._internal import (
     DBEngine,
     DeleteStatement as _DeleteStatement,
-    ForeignKeyCreateStatement as _ForeignKeyCreateStatement,
-    ForeignKeyDropStatement as _ForeignKeyDropStatement,
     IndexCreateStatement as _IndexCreateStatement,
     IndexDropStatement as _IndexDropStatement,
     InsertStatement as _InsertStatement,
@@ -13,7 +11,6 @@ from ._internal import (
     TableCreateStatement as _TableCreateStatement,
     TableDropStatement as _TableDropStatement,
     TableRenameStatement as _TableRenameStatement,
-    TableTruncateStatement as _TableTruncateStatement,
     UpdateStatement as _UpdateStatement,
 )
 
@@ -88,11 +85,6 @@ class TableDropStatement(_TableDropStatement):
         return super().to_string(DBEngine.Sqlite)
 
 
-class TableTruncateStatement(_TableTruncateStatement):
-    def to_string(self) -> str:
-        return super().to_string(DBEngine.Sqlite)
-
-
 class Table:
     @staticmethod
     def create() -> TableCreateStatement:
@@ -109,10 +101,6 @@ class Table:
     @staticmethod
     def drop() -> TableDropStatement:
         return TableDropStatement()
-
-    @staticmethod
-    def truncate() -> TableTruncateStatement:
-        return TableTruncateStatement()
 
 
 class IndexCreateStatement(_IndexCreateStatement):
@@ -133,23 +121,3 @@ class Index:
     @staticmethod
     def drop() -> IndexDropStatement:
         return IndexDropStatement()
-
-
-class ForeignKeyCreateStatement(_ForeignKeyCreateStatement):
-    def to_string(self) -> str:
-        return super().to_string(DBEngine.Sqlite)
-
-
-class ForeignKeyDropStatement(_ForeignKeyDropStatement):
-    def to_string(self) -> str:
-        return super().to_string(DBEngine.Sqlite)
-
-
-class ForeignKey:
-    @staticmethod
-    def create() -> ForeignKeyCreateStatement:
-        return ForeignKeyCreateStatement()
-
-    @staticmethod
-    def drop() -> ForeignKeyDropStatement:
-        return ForeignKeyDropStatement()

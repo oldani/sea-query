@@ -225,7 +225,7 @@ impl Column {
     }
 }
 
-#[pyclass]
+#[pyclass(subclass)]
 pub struct TableCreateStatement(SeaTableCreateStatement);
 
 #[pymethods]
@@ -288,7 +288,7 @@ impl TableCreateStatement {
     }
 }
 
-#[pyclass]
+#[pyclass(subclass)]
 pub struct TableAlterStatement(SeaTableAlterStatement);
 
 #[pymethods]
@@ -355,7 +355,7 @@ impl TableAlterStatement {
     }
 }
 
-#[pyclass]
+#[pyclass(subclass)]
 pub struct TableDropStatement(SeaTableDropStatement);
 
 #[pymethods]
@@ -394,7 +394,7 @@ impl TableDropStatement {
     }
 }
 
-#[pyclass]
+#[pyclass(subclass)]
 pub struct TableRenameStatement(SeaTableRenameStatement);
 
 #[pymethods]
@@ -418,7 +418,7 @@ impl TableRenameStatement {
     }
 }
 
-#[pyclass]
+#[pyclass(subclass)]
 pub struct TableTruncateStatement(SeaTableTruncateStatement);
 
 #[pymethods]

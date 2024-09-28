@@ -32,7 +32,7 @@ impl From<ForeignKeyAction> for SeaForeignKeyAction {
     }
 }
 
-#[pyclass]
+#[pyclass(subclass)]
 #[derive(Clone)]
 pub struct ForeignKeyCreateStatement(pub SeaForeignKeyCreateStatement);
 
@@ -87,7 +87,7 @@ impl ForeignKeyCreateStatement {
     }
 }
 
-#[pyclass]
+#[pyclass(subclass)]
 pub struct ForeignKeyDropStatement(pub SeaForeignKeyDropStatement);
 
 #[pymethods]

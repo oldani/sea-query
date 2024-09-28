@@ -65,7 +65,7 @@ impl OnConflict {
     // TODO: Implement missing methods
 }
 
-#[pyclass]
+#[pyclass(subclass)]
 #[derive(Clone)]
 pub struct SelectStatement(pub SeaSelectStatement);
 
@@ -315,7 +315,7 @@ impl SelectStatement {
     }
 }
 
-#[pyclass]
+#[pyclass(subclass)]
 pub struct InsertStatement(SeaInsertStatement);
 
 #[pymethods]
@@ -381,7 +381,7 @@ impl InsertStatement {
     }
 }
 
-#[pyclass]
+#[pyclass(subclass)]
 pub struct UpdateStatement(SeaUpdateStatement);
 
 #[pymethods]
@@ -449,7 +449,7 @@ impl UpdateStatement {
     }
 }
 
-#[pyclass]
+#[pyclass(subclass)]
 pub struct DeleteStatement(SeaDeleteStatement);
 
 #[pymethods]

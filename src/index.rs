@@ -10,7 +10,7 @@ use sea_query::{
 
 use crate::types::{DBEngine, IndexType, OrderBy};
 
-#[pyclass]
+#[pyclass(subclass)]
 #[derive(Clone)]
 pub struct IndexCreateStatement(pub(crate) SeaIndexCreateStatement);
 
@@ -81,7 +81,7 @@ impl IndexCreateStatement {
     }
 }
 
-#[pyclass]
+#[pyclass(subclass)]
 pub struct IndexDropStatement(pub(crate) SeaIndexDropStatement);
 
 #[pymethods]

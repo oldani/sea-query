@@ -1,4 +1,4 @@
-from typing import Any, List
+from typing import Any, List, Tuple
 
 from ._internal import (
     DBEngine,
@@ -19,7 +19,7 @@ class SelectStatement(_SelectStatement):
     def to_string(self) -> str:
         return super().to_string(DBEngine.Sqlite)
 
-    def build(self) -> tuple[str, List[Any]]:
+    def build(self) -> Tuple[str, List[Any]]:
         return super().build(DBEngine.Sqlite)
 
 
@@ -27,7 +27,7 @@ class UpdateStatement(_UpdateStatement):
     def to_string(self) -> str:
         return super().to_string(DBEngine.Sqlite)
 
-    def build(self) -> tuple[str, List[Any]]:
+    def build(self) -> Tuple[str, List[Any]]:
         return super().build(DBEngine.Sqlite)
 
 
@@ -35,7 +35,7 @@ class InsertStatement(_InsertStatement):
     def to_string(self) -> str:
         return super().to_string(DBEngine.Sqlite)
 
-    def build(self) -> tuple[str, List[Any]]:
+    def build(self) -> Tuple[str, List[Any]]:
         return super().build(DBEngine.Sqlite)
 
 
@@ -43,7 +43,7 @@ class DeleteStatement(_DeleteStatement):
     def to_string(self) -> str:
         return super().to_string(DBEngine.Sqlite)
 
-    def build(self) -> tuple[str, List[Any]]:
+    def build(self) -> Tuple[str, List[Any]]:
         return super().build(DBEngine.Sqlite)
 
 

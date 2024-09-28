@@ -1,3 +1,5 @@
+from typing import List, Tuple, Union
+
 from sea_query import Expr
 from sea_query.mysql import (
     ForeignKey as MysqlForeignKey,
@@ -20,10 +22,13 @@ from sea_query.table import Column
 
 
 def test_select_query():
-    builders = [(SqliteQuery(), "?"), (PostgresQuery(), "$1")]
-    for query, _ in builders:
+    builders: List[Tuple[Union[SqliteQuery, PostgresQuery], str]] = [
+        (SqliteQuery(), "?"),
+        (PostgresQuery(), "$1"),
+    ]
+    for builder, _ in builders:
         assert (
-            query.select().all().from_table("table").to_string()
+            builder.select().all().from_table("table").to_string()
             == 'SELECT * FROM "table"'
         )
 
@@ -32,9 +37,9 @@ def test_select_query():
         == "SELECT * FROM `table`"
     )
 
-    for query, placeholder in builders:
+    for builder, placeholder in builders:
         query = (
-            query.select()
+            builder.select()
             .all()
             .from_table("table")
             .and_where(Expr.column("id").eq(1))
@@ -52,10 +57,13 @@ def test_select_query():
 
 
 def test_update_query():
-    builders = [(SqliteQuery(), "?"), (PostgresQuery(), "$1")]
-    for query, _ in builders:
+    builders: List[Tuple[Union[SqliteQuery, PostgresQuery], str]] = [
+        (SqliteQuery(), "?"),
+        (PostgresQuery(), "$1"),
+    ]
+    for builder, _ in builders:
         assert (
-            query.update().table("table").value("id", 1).to_string()
+            builder.update().table("table").value("id", 1).to_string()
             == 'UPDATE "table" SET "id" = 1'
         )
 
@@ -64,9 +72,9 @@ def test_update_query():
         == "UPDATE `table` SET `column` = 1"
     )
 
-    for query, placeholder in builders:
+    for builder, placeholder in builders:
         query = (
-            query.update()
+            builder.update()
             .table("table")
             .value("id", 2)
             .and_where(Expr.column("id").eq(1))
@@ -88,10 +96,13 @@ def test_update_query():
 
 
 def test_insert_query():
-    builders = [(SqliteQuery(), "?"), (PostgresQuery(), "$1")]
-    for query, _ in builders:
+    builders: List[Tuple[Union[SqliteQuery, PostgresQuery], str]] = [
+        (SqliteQuery(), "?"),
+        (PostgresQuery(), "$1"),
+    ]
+    for builder, _ in builders:
         assert (
-            query.insert()
+            builder.insert()
             .into("table")
             .columns(["column1", "column2"])
             .values([1, "value"])
@@ -108,9 +119,9 @@ def test_insert_query():
         == "INSERT INTO `table` (`column1`, `column2`) VALUES (1, 'value')"
     )
 
-    for query, placeholder in builders:
+    for builder, placeholder in builders:
         query = (
-            query.insert()
+            builder.insert()
             .into("table")
             .columns(["column1", "column2"])
             .values([1, "value"])
@@ -135,16 +146,19 @@ def test_insert_query():
 
 
 def test_delete_query():
-    builders = [(SqliteQuery(), "?"), (PostgresQuery(), "$1")]
-    for query, _ in builders:
-        assert query.delete().from_table("table").to_string() == 'DELETE FROM "table"'
+    builders: List[Tuple[Union[SqliteQuery, PostgresQuery], str]] = [
+        (SqliteQuery(), "?"),
+        (PostgresQuery(), "$1"),
+    ]
+    for builder, _ in builders:
+        assert builder.delete().from_table("table").to_string() == 'DELETE FROM "table"'
     assert (
         MysqlQuery().delete().from_table("table").to_string() == "DELETE FROM `table`"
     )
 
-    for query, placeholder in builders:
+    for builder, placeholder in builders:
         query = (
-            query.delete()
+            builder.delete()
             .from_table("table")
             .and_where(Expr.column("id").eq(1))
             .build()
@@ -162,7 +176,8 @@ def test_delete_query():
 
 
 def test_table_create_query():
-    for query in [SqliteTable(), PostgresTable()]:
+    builders: List[Union[SqliteTable, PostgresTable]] = [SqliteTable(), PostgresTable()]
+    for query in builders:
         assert (
             query.create().name("table").column(Column("name").text()).to_string()
             == 'CREATE TABLE "table" ( "name" text )'
@@ -175,7 +190,8 @@ def test_table_create_query():
 
 
 def test_table_alter_query():
-    for query in [SqliteTable(), PostgresTable()]:
+    builders: List[Union[SqliteTable, PostgresTable]] = [SqliteTable(), PostgresTable()]
+    for query in builders:
         assert (
             query.alter().table("table").add_column(Column("name").text()).to_string()
             == 'ALTER TABLE "table" ADD COLUMN "name" text'
@@ -192,7 +208,8 @@ def test_table_alter_query():
 
 
 def test_table_rename_query():
-    for query in [SqliteTable(), PostgresTable()]:
+    builders: List[Union[SqliteTable, PostgresTable]] = [SqliteTable(), PostgresTable()]
+    for query in builders:
         assert (
             query.rename().table("table", "new_table").to_string()
             == 'ALTER TABLE "table" RENAME TO "new_table"'
@@ -205,7 +222,8 @@ def test_table_rename_query():
 
 
 def test_table_drop_query():
-    for query in [SqliteTable(), PostgresTable()]:
+    builders: List[Union[SqliteTable, PostgresTable]] = [SqliteTable(), PostgresTable()]
+    for query in builders:
         assert query.drop().table("table").to_string() == 'DROP TABLE "table"'
 
     assert MysqlTable().drop().table("table").to_string() == "DROP TABLE `table`"
@@ -223,7 +241,8 @@ def test_table_truncate_query():
 
 
 def test_index_create_query():
-    for query in [SqliteIndex(), PostgresIndex()]:
+    builders: List[Union[SqliteIndex, PostgresIndex]] = [SqliteIndex(), PostgresIndex()]
+    for query in builders:
         assert (
             query.create().name("index").table("table").column("column").to_string()
             == 'CREATE INDEX "index" ON "table" ("column")'
@@ -236,7 +255,8 @@ def test_index_create_query():
 
 
 def test_drop_index_query():
-    for query in [SqliteIndex(), PostgresIndex()]:
+    builders: List[Union[SqliteIndex, PostgresIndex]] = [SqliteIndex(), PostgresIndex()]
+    for query in builders:
         assert (
             query.drop().name("index").table("table").to_string()
             == 'DROP INDEX "index"'

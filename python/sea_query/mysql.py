@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, List
 
 from ._internal import (
     DBEngine,
@@ -22,7 +22,7 @@ class SelectStatement(_SelectStatement):
     def to_string(self) -> str:
         return super().to_string(DBEngine.Mysql)
 
-    def build(self) -> tuple[str, list[Any]]:
+    def build(self) -> tuple[str, List[Any]]:
         return super().build(DBEngine.Mysql)
 
 
@@ -30,7 +30,7 @@ class UpdateStatement(_UpdateStatement):
     def to_string(self) -> str:
         return super().to_string(DBEngine.Mysql)
 
-    def build(self) -> tuple[str, list[Any]]:
+    def build(self) -> tuple[str, List[Any]]:
         return super().build(DBEngine.Mysql)
 
 
@@ -38,7 +38,7 @@ class InsertStatement(_InsertStatement):
     def to_string(self) -> str:
         return super().to_string(DBEngine.Mysql)
 
-    def build(self) -> tuple[str, list[Any]]:
+    def build(self) -> tuple[str, List[Any]]:
         return super().build(DBEngine.Mysql)
 
 
@@ -46,7 +46,7 @@ class DeleteStatement(_DeleteStatement):
     def to_string(self) -> str:
         return super().to_string(DBEngine.Mysql)
 
-    def build(self) -> tuple[str, list[Any]]:
+    def build(self) -> tuple[str, List[Any]]:
         return super().build(DBEngine.Mysql)
 
 

@@ -1,3 +1,3 @@
-from ._internal import Condition, Expr
+from ._internal import Condition, Expr, SimpleExpr
 
-__all__ = ["Condition", "Expr"]
+__all__ = ["Condition", "Expr", "SimpleExpr"]

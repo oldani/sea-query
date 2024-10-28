@@ -60,13 +60,16 @@ impl From<&Value> for PyValue {
         match val {
             Value::Bool(v) => PyValue::Bool(v.unwrap()),
             Value::BigInt(v) => PyValue::Int(v.unwrap()),
+            Value::BigUnsigned(v) => PyValue::Int(v.unwrap() as i64),
             Value::Double(v) => PyValue::Float(v.unwrap()),
             Value::ChronoDateTimeWithTimeZone(v) => PyValue::DateTimeTz(*v.clone().unwrap()),
             Value::ChronoDateTime(v) => PyValue::DateTime(*v.clone().unwrap()),
             Value::ChronoDate(v) => PyValue::Date(*v.clone().unwrap()),
             Value::ChronoTime(v) => PyValue::Time(*v.clone().unwrap()),
             Value::String(v) => PyValue::String(*v.clone().unwrap()),
-            _ => unimplemented!(),
+            _ => {
+                unimplemented!("Unsupported value type: {:?}", val);
+            }
         }
     }
 }

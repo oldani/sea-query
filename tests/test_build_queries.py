@@ -3,26 +3,20 @@ import datetime as dt
 from sea_query import DBEngine, Expr, Query
 from sea_query.expr import Condition
 
+from tests.utils import format_mysql, format_sqlite
+
 
 def test_select_query_build():
     query = (
         Query.select().all().from_table("table").and_where(Expr.column("column").eq(1))
     )
 
-    assert query.build(DBEngine.Postgres) == (
-        'SELECT * FROM "table" WHERE "column" = $1',
-        [1],
-    )
+    sql = 'SELECT * FROM "table" WHERE "column" = $1'
+    assert query.build(DBEngine.Postgres) == (sql, [1])
 
-    assert query.build(DBEngine.Mysql) == (
-        "SELECT * FROM `table` WHERE `column` = ?",
-        [1],
-    )
+    assert query.build(DBEngine.Mysql) == (format_mysql(sql), [1])
 
-    assert query.build(DBEngine.Sqlite) == (
-        'SELECT * FROM "table" WHERE "column" = ?',
-        [1],
-    )
+    assert query.build(DBEngine.Sqlite) == (format_sqlite(sql), [1])
 
 
 def test_select_query_build_many_values():
@@ -44,6 +38,24 @@ def test_select_query_build_many_values():
         'SELECT * FROM "table" WHERE "column1" = $1 OR "column2" > $2 OR "column3" IN ($3, $4, $5) OR "email" <> $6 OR "is_active" IS $7',
         [1, 2.7, 3, 4.35, 5, "test@email.com", True],
     )
+
+
+def test_select_with_limit():
+    query = Query.select().all().from_table("table").limit(10)
+    sql = 'SELECT * FROM "table" LIMIT $1'
+
+    assert query.build(DBEngine.Postgres) == (sql, [10])
+    assert query.build(DBEngine.Mysql) == (format_mysql(sql), [10])
+    assert query.build(DBEngine.Sqlite) == (format_sqlite(sql), [10])
+
+
+def test_select_with_limit_and_offset():
+    query = Query.select().all().from_table("table").limit(10).offset(5)
+    sql = 'SELECT * FROM "table" LIMIT $1 OFFSET $2'
+
+    assert query.build(DBEngine.Postgres) == (sql, [10, 5])
+    assert query.build(DBEngine.Mysql) == (format_mysql(sql), [10, 5])
+    assert query.build(DBEngine.Sqlite) == (format_sqlite(sql), [10, 5])
 
 
 def test_insert_query_build():

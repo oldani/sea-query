@@ -92,3 +92,53 @@ def test_insert_returning_column():
         'INSERT INTO "table" ("column1", "column2") VALUES (1, 3.5) RETURNING "column1"',
         mysql_expected="INSERT INTO `table` (`column1`, `column2`) VALUES (1, 3.5)",
     )
+
+
+def test_insert_returning_column_overrides_previous():
+    query = (
+        Query.insert()
+        .into("table")
+        .columns(["column1", "column2"])
+        .values([1, 3.5])
+        .returning_column("column1")
+        .returning_column("column2")
+    )
+
+    assert_query(
+        query,
+        'INSERT INTO "table" ("column1", "column2") VALUES (1, 3.5) RETURNING "column2"',
+        mysql_expected="INSERT INTO `table` (`column1`, `column2`) VALUES (1, 3.5)",
+    )
+
+
+def test_insert_returning_columns():
+    query = (
+        Query.insert()
+        .into("table")
+        .columns(["column1", "column2"])
+        .values([1, 3.5])
+        .returning_columns(["column1", "column2"])
+    )
+
+    assert_query(
+        query,
+        'INSERT INTO "table" ("column1", "column2") VALUES (1, 3.5) RETURNING "column1", "column2"',
+        mysql_expected="INSERT INTO `table` (`column1`, `column2`) VALUES (1, 3.5)",
+    )
+
+
+def test_insert_returning_columns_overrides_previous():
+    query = (
+        Query.insert()
+        .into("table")
+        .columns(["column1", "column2"])
+        .values([1, 3.5])
+        .returning_columns(["column1", "column2"])
+        .returning_columns(["column2"])
+    )
+
+    assert_query(
+        query,
+        'INSERT INTO "table" ("column1", "column2") VALUES (1, 3.5) RETURNING "column2"',
+        mysql_expected="INSERT INTO `table` (`column1`, `column2`) VALUES (1, 3.5)",
+    )

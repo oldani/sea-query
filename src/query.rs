@@ -4,7 +4,7 @@ use sea_query::{
     expr::SimpleExpr as SeaSimpleExpr,
     query::{
         DeleteStatement as SeaDeleteStatement, InsertStatement as SeaInsertStatement,
-        OnConflict as SeaOnConflict, SelectStatement as SeaSelectStatement,
+        OnConflict as SeaOnConflict, Returning, SelectStatement as SeaSelectStatement,
         UpdateStatement as SeaUpdateStatement,
     },
     Alias, Asterisk,
@@ -364,6 +364,12 @@ impl InsertStatement {
 
     fn returning_column(mut slf: PyRefMut<Self>, column: String) -> PyRefMut<Self> {
         slf.0.returning_col(Alias::new(column));
+        slf
+    }
+
+    fn returning_columns(mut slf: PyRefMut<Self>, columns: Vec<String>) -> PyRefMut<Self> {
+        slf.0
+            .returning(Returning.columns(columns.iter().map(Alias::new).collect::<Vec<Alias>>()));
         slf
     }
 

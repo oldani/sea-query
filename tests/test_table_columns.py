@@ -1,3 +1,4 @@
+import pytest
 from sea_query import DBEngine, Expr, Table
 from sea_query.table import Column, ColumnType
 
@@ -422,4 +423,35 @@ def test_col_auto_increment():
 
     assert statement.to_string(DBEngine.Mysql) == (
         "CREATE TABLE `users` ( `id` smallint AUTO_INCREMENT )"
+    )
+
+
+@pytest.mark.parametrize(
+    "column, expected",
+    [
+        (Column("id").integer().default(Expr.value(1)), '"id" integer DEFAULT 1'),
+        (
+            Column("name").string().default(Expr.value("John")),
+            "\"name\" varchar DEFAULT 'John'",
+        ),
+        (
+            Column("active").boolean().default(Expr.value(True)),
+            '"active" bool DEFAULT TRUE',
+        ),
+        (
+            Column("amount").float().default(Expr.value(3.14)),
+            '"amount" real DEFAULT 3.14',
+        ),
+        (
+            Column("created_at").datetime().default(Expr.value("now()")),
+            "\"created_at\" timestamp without time zone DEFAULT 'now()'",
+        ),
+        (Column("data").json().default(Expr.value("{}")), "\"data\" json DEFAULT '{}'"),
+    ],
+)
+def test_col_default(column, expected):
+    statement = Table.create().name("users").column(column)
+
+    assert (
+        statement.to_string(DBEngine.Postgres) == f'CREATE TABLE "users" ( {expected} )'
     )

@@ -274,6 +274,11 @@ impl TableCreateStatement {
         slf
     }
 
+    fn extra(mut slf: PyRefMut<Self>, extra: String) -> PyRefMut<Self> {
+        slf.0.extra(extra);
+        slf
+    }
+
     fn comment(mut slf: PyRefMut<Self>, comment: String) -> PyRefMut<Self> {
         slf.0.comment(comment);
         slf

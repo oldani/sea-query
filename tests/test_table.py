@@ -154,6 +154,19 @@ def test_create_table_add_foreign_key():
     )
 
 
+def test_create_table_add_extra():
+    statement = (
+        Table.create()
+        .name("test")
+        .column(Column("id").big_integer().primary_key().auto_increment())
+        .extra("STRICT")
+    )
+
+    assert statement.to_string(DBEngine.Sqlite) == (
+        'CREATE TABLE "test" ( "id" integer PRIMARY KEY AUTOINCREMENT ) STRICT'
+    )
+
+
 def test_alter_table_add_column():
     statement = (
         Table.alter()

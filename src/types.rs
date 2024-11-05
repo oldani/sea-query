@@ -37,6 +37,7 @@ pub enum PyValue {
     Date(NaiveDate),
     Time(NaiveTime),
     String(String),
+    None(Option<bool>),
 }
 
 impl From<&PyValue> for Value {
@@ -50,7 +51,7 @@ impl From<&PyValue> for Value {
             PyValue::Date(v) => Value::ChronoDate(Some(Box::new(*v))),
             PyValue::Time(v) => Value::ChronoTime(Some(Box::new(*v))),
             PyValue::String(v) => Value::String(Some(Box::new(v.clone()))),
-            // TODO: Add support for other types
+            PyValue::None(_) => Value::Bool(None),
         }
     }
 }
@@ -58,7 +59,8 @@ impl From<&PyValue> for Value {
 impl From<&Value> for PyValue {
     fn from(val: &Value) -> Self {
         match val {
-            Value::Bool(v) => PyValue::Bool(v.unwrap()),
+            Value::Bool(Some(v)) => PyValue::Bool(*v),
+            Value::Bool(None) => PyValue::None(None),
             Value::BigInt(v) => PyValue::Int(v.unwrap()),
             Value::BigUnsigned(v) => PyValue::Int(v.unwrap() as i64),
             Value::Double(v) => PyValue::Float(v.unwrap()),
@@ -85,6 +87,7 @@ impl IntoPy<PyObject> for PyValue {
             PyValue::Date(v) => v.into_py(py),
             PyValue::Time(v) => v.into_py(py),
             PyValue::String(v) => v.into_py(py),
+            PyValue::None(_) => py.None(),
         }
     }
 }

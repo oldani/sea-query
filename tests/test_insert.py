@@ -16,6 +16,19 @@ def test_insert_into():
     )
 
 
+def test_insert_none():
+    query = (
+        Query.insert()
+        .into("table")
+        .columns(["col1", "col2", "col3", "col4", "col5", "col6"])
+        .values([1, 0, None, True, False, None])
+    )
+    assert_query(
+        query,
+        'INSERT INTO "table" ("col1", "col2", "col3", "col4", "col5", "col6") VALUES (1, 0, NULL, TRUE, FALSE, NULL)',
+    )
+
+
 def test_insert_multiple_values():
     query = (
         Query.insert()

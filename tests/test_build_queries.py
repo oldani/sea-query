@@ -26,17 +26,18 @@ def test_select_query_build_many_values():
         .from_table("table")
         .cond_where(
             Condition.any()
-            .add(Expr.column("column1").eq(1))
-            .add(Expr.column("column2").gt(2.7))
-            .add(Expr.column("column3").is_in([3, 4.35, 5]))
-            .add(Expr.column("email").ne("test@email.com"))
-            .add(Expr.column("is_active").is_(True))
+            .add(Expr.column("col1").eq(1))
+            .add(Expr.column("col2").gt(2.7))
+            .add(Expr.column("col3").is_in([3, 4.35, 5]))
+            .add(Expr.column("col4").ne("test@email.com"))
+            .add(Expr.column("col5").is_(True))
+            .add(Expr.column("col6").is_(None))
         )
     )
 
     assert query.build(DBEngine.Postgres) == (
-        'SELECT * FROM "table" WHERE "column1" = $1 OR "column2" > $2 OR "column3" IN ($3, $4, $5) OR "email" <> $6 OR "is_active" IS $7',
-        [1, 2.7, 3, 4.35, 5, "test@email.com", True],
+        'SELECT * FROM "table" WHERE "col1" = $1 OR "col2" > $2 OR "col3" IN ($3, $4, $5) OR "col4" <> $6 OR "col5" IS $7 OR "col6" IS $8',
+        [1, 2.7, 3, 4.35, 5, "test@email.com", True, None],
     )
 
 
@@ -114,7 +115,17 @@ def test_insert_build_with_diff_types():
         Query.insert()
         .into("table")
         .columns(
-            ["boo", "int", "float", "str", "time", "date", "datetime", "datetime_tz"]
+            [
+                "boo",
+                "int",
+                "float",
+                "str",
+                "time",
+                "date",
+                "datetime",
+                "datetime_tz",
+                "none",
+            ]
         )
         .values(
             [
@@ -126,12 +137,13 @@ def test_insert_build_with_diff_types():
                 dt.date(2024, 9, 12),
                 dt.datetime(2024, 9, 12, 12, 30, 00),
                 dt.datetime(2024, 9, 12, 12, 30, 00, tzinfo=dt.timezone.utc),
+                None,
             ]
         )
     )
 
     assert query.build(DBEngine.Postgres) == (
-        'INSERT INTO "table" ("boo", "int", "float", "str", "time", "date", "datetime", "datetime_tz") VALUES ($1, $2, $3, $4, $5, $6, $7, $8)',
+        'INSERT INTO "table" ("boo", "int", "float", "str", "time", "date", "datetime", "datetime_tz", "none") VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)',
         [
             True,
             1,
@@ -141,6 +153,7 @@ def test_insert_build_with_diff_types():
             dt.date(2024, 9, 12),
             dt.datetime(2024, 9, 12, 12, 30, 00),
             dt.datetime(2024, 9, 12, 12, 30, 00, tzinfo=dt.timezone.utc),
+            None,
         ],
     )
 

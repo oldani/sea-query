@@ -38,7 +38,7 @@ class SimpleExpr:
     def __and__(self, other: SimpleExpr) -> SimpleExpr: ...
     def __invert__(self) -> SimpleExpr: ...
 
-ValueType: TypeAlias = Union[int, float, str, bool, dt.date, dt.time, dt.datetime]
+ValueType: TypeAlias = Union[int, float, str, bool, dt.date, dt.time, dt.datetime, None]
 
 class Expr:
     @staticmethod

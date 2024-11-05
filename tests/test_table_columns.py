@@ -447,6 +447,18 @@ def test_col_auto_increment():
             "\"created_at\" timestamp without time zone DEFAULT 'now()'",
         ),
         (Column("data").json().default(Expr.value("{}")), "\"data\" json DEFAULT '{}'"),
+        (
+            Column("datetime").timestamp().default(Expr.current_timestamp()),
+            '"datetime" timestamp DEFAULT CURRENT_TIMESTAMP',
+        ),
+        (
+            Column("date").date().default(Expr.current_date()),
+            '"date" date DEFAULT CURRENT_DATE',
+        ),
+        (
+            Column("time").time().default(Expr.current_time()),
+            '"time" time DEFAULT CURRENT_TIME',
+        ),
     ],
 )
 def test_col_default(column, expected):

@@ -164,6 +164,21 @@ impl Expr {
     }
 
     #[staticmethod]
+    fn current_timestamp() -> Expr {
+        Expr(Some(SeaExpr::current_timestamp()))
+    }
+
+    #[staticmethod]
+    fn current_date() -> Expr {
+        Expr(Some(SeaExpr::current_date()))
+    }
+
+    #[staticmethod]
+    fn current_time() -> Expr {
+        Expr(Some(SeaExpr::current_time()))
+    }
+
+    #[staticmethod]
     fn exists(query: SelectStatement) -> SimpleExpr {
         SimpleExpr(SeaExpr::exists(query.0))
     }
